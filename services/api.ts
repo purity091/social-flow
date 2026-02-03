@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from './supabase';
-import { Post, Campaign, MediaItem } from '../types';
+import { Post, Campaign, MediaItem, Platform } from '../types';
 
 // =====================
 // LOCAL STORAGE FALLBACK
@@ -75,7 +75,13 @@ export const getPosts = async (): Promise<Post[]> => {
 export const createPost = async (post: Post): Promise<Post> => {
     if (!isSupabaseConfigured || !supabase) {
         const posts = getLocalPosts();
-        const newPost = { ...post, id: post.id || `local-${Date.now()}-${Math.random()}` };
+        const newPost: Post = {
+            ...post,
+            id: post.id || `local-${Date.now()}-${Math.random()}`,
+            date: post.date || new Date(),
+            platform: post.platform || Platform.INSTAGRAM,
+            status: post.status || 'Draft'
+        };
         saveLocalPosts([...posts, newPost]);
         return newPost;
     }
@@ -86,13 +92,13 @@ export const createPost = async (post: Post): Promise<Post> => {
     const payload = {
         user_id: userId,
         title: post.title,
-        content: post.content,
-        platform: post.platform,
-        status: post.status,
-        date: post.date.toISOString(),
-        image_url: post.imageUrl,
-        program_id: post.programId,
-        program_name: post.programName
+        content: post.content || null,
+        platform: post.platform || 'Instagram',
+        status: post.status || 'Draft',
+        date: post.date ? post.date.toISOString() : new Date().toISOString(),
+        image_url: post.imageUrl || null,
+        program_id: post.programId || null,
+        program_name: post.programName || null
     };
     const { data, error } = await supabase.from('posts').insert([payload]).select().single();
     if (error) throw error;

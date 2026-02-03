@@ -12,13 +12,13 @@ export type GanttViewMode = 'day' | 'month' | 'year';
 export interface Post {
   id: string;
   title: string;
-  content: string;
-  date: Date;
-  platform: Platform;
-  status: 'Draft' | 'Scheduled' | 'Published';
+  content?: string;
+  date?: Date;
+  platform?: Platform;
+  status?: 'Draft' | 'Scheduled' | 'Published';
   imageUrl?: string;
-  programId?: string; // Identifier for bulk-generated programs
-  programName?: string; // Readable name for the program
+  programId?: string;
+  programName?: string;
 }
 
 export interface Campaign {
