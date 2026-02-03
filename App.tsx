@@ -76,30 +76,55 @@ const App: React.FC = () => {
 
   const handleBulkPosts = async (newPosts: Post[]) => {
     try {
-      // Save generated posts to DB
-      const savePromises = newPosts.map(p => api.createPost(p));
-      const savedPosts = await Promise.all(savePromises);
+      // Save posts sequentially to avoid overwhelming Supabase
+      const savedPosts: Post[] = [];
 
-      setPosts(prev => [...prev, ...savedPosts]);
+      for (let i = 0; i < newPosts.length; i++) {
+        const post = newPosts[i];
+        try {
+          const saved = await api.createPost(post);
+          savedPosts.push(saved);
+        } catch (err) {
+          console.error(`Failed to save post ${i + 1}:`, err);
+          // Continue with next post even if one fails
+        }
 
-      // If program, create campaign
-      if (newPosts.length > 0 && newPosts[0].programId) {
-        const prog = newPosts[0];
-        const dates = newPosts.map(p => p.date.getTime());
-        const minDate = new Date(Math.min(...dates));
-        const maxDate = new Date(Math.max(...dates));
+        // Small delay between requests to avoid rate limiting
+        if (i < newPosts.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
 
-        const newCampaign: Campaign = {
-          id: '',
-          name: prog.programName || 'برنامج جديد',
-          startDate: minDate,
-          endDate: maxDate,
-          color: '#6366f1',
-          description: `برنامج محتوى لـ ${prog.platform} (${newPosts.length} منشور)`
-        };
+      if (savedPosts.length > 0) {
+        setPosts(prev => [...prev, ...savedPosts]);
 
-        const savedCampaign = await api.createCampaign(newCampaign);
-        setCampaigns(prev => [savedCampaign, ...prev]);
+        // If program, create campaign
+        if (newPosts[0].programId) {
+          const prog = newPosts[0];
+          const dates = savedPosts.map(p => (p.date || new Date()).getTime());
+          const minDate = new Date(Math.min(...dates));
+          const maxDate = new Date(Math.max(...dates));
+
+          const newCampaign: Campaign = {
+            id: '',
+            name: prog.programName || 'برنامج جديد',
+            startDate: minDate,
+            endDate: maxDate,
+            color: '#6366f1',
+            description: `برنامج محتوى لـ ${prog.platform || 'متعدد'} (${savedPosts.length} منشور)`
+          };
+
+          try {
+            const savedCampaign = await api.createCampaign(newCampaign);
+            setCampaigns(prev => [savedCampaign, ...prev]);
+          } catch (err) {
+            console.error('Failed to save campaign:', err);
+          }
+        }
+
+        alert(`تم حفظ ${savedPosts.length} من ${newPosts.length} منشور بنجاح!`);
+      } else {
+        alert('فشل حفظ المنشورات. تأكد من إعداد قاعدة البيانات.');
       }
 
       setShowBulkGen(false);
@@ -107,7 +132,7 @@ const App: React.FC = () => {
 
     } catch (e) {
       console.error("Failed to save bulk posts", e);
-      alert('حدث خطأ أثناء حفظ المنشورات. تأكد من تسجيل الدخول وإعداد Supabase.');
+      alert('حدث خطأ أثناء حفظ المنشورات.');
     }
   };
 
