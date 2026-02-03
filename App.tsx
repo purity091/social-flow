@@ -21,10 +21,39 @@ const App: React.FC = () => {
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [initialDate, setInitialDate] = useState<Date | undefined>(undefined);
+
+  // Load data from Supabase on mount (or when user changes)
+  useEffect(() => {
+    // Don't fetch if still loading auth or no user when Supabase is configured
+    if (isConfigured && (authLoading || !user)) {
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const [fetchedPosts, fetchedCampaigns, fetchedMedia] = await Promise.all([
+          api.getPosts(),
+          api.getCampaigns(),
+          api.getMediaItems()
+        ]);
+        setPosts(fetchedPosts);
+        setCampaigns(fetchedCampaigns);
+        setMediaItems(fetchedMedia);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [user, authLoading, isConfigured]);
 
   // Show login page if Supabase is configured but user is not logged in
   if (isConfigured && authLoading) {
@@ -39,28 +68,6 @@ const App: React.FC = () => {
     return <LoginPage />;
   }
 
-  // Load data from Supabase on mount (or when user changes)
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const [fetchedPosts, fetchedCampaigns, fetchedMedia] = await Promise.all([
-          api.getPosts(),
-          api.getCampaigns(),
-          api.getMediaItems()
-        ]);
-        setPosts(fetchedPosts);
-        setCampaigns(fetchedCampaigns);
-        setMediaItems(fetchedMedia);
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-        // Fallback or empty state handled by initial state
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, [user]);
 
   const handleBulkPosts = (newPosts: Post[]) => {
     // Save generated posts to DB one by one (or bulk insert if API supported it, here loop for simplicity)
