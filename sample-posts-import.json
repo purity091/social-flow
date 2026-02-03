@@ -1,0 +1,34 @@
+{
+    "posts": [
+        {
+            "title": "منشور تجريبي 1",
+            "content": "هذا محتوى تجريبي للمنشور الأول. يمكنك تعديله حسب حاجتك.",
+            "platform": "Instagram",
+            "status": "Draft",
+            "date": "2024-03-15T10:00:00.000Z",
+            "imageUrl": null,
+            "programId": null,
+            "programName": null
+        },
+        {
+            "title": "منشور تجريبي 2",
+            "content": "محتوى المنشور الثاني مع هاشتاغات #تسويق #محتوى",
+            "platform": "Twitter",
+            "status": "Scheduled",
+            "date": "2024-03-16T14:30:00.000Z",
+            "imageUrl": null,
+            "programId": null,
+            "programName": null
+        },
+        {
+            "title": "منشور تجريبي 3",
+            "content": "منشور لينكد إن احترافي عن التسويق الرقمي",
+            "platform": "LinkedIn",
+            "status": "Draft",
+            "date": "2024-03-17T09:00:00.000Z",
+            "imageUrl": null,
+            "programId": "prog-demo",
+            "programName": "برنامج تجريبي"
+        }
+    ]
+}

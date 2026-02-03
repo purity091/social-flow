@@ -41,6 +41,13 @@ const saveLocalMediaItems = (items: MediaItem[]) => {
     localStorage.setItem('socialflow_media', JSON.stringify(items));
 };
 
+// Helper to get current user ID
+const getCurrentUserId = async (): Promise<string | null> => {
+    if (!supabase) return null;
+    const { data: { user } } = await supabase.auth.getUser();
+    return user?.id || null;
+};
+
 // =====================
 // API FUNCTIONS
 // =====================
@@ -50,7 +57,7 @@ export const getPosts = async (): Promise<Post[]> => {
     if (!isSupabaseConfigured || !supabase) {
         return getLocalPosts();
     }
-    const { data, error } = await supabase.from('posts').select('*');
+    const { data, error } = await supabase.from('posts').select('*').order('date', { ascending: true });
     if (error) throw error;
     return data.map((p: any) => ({
         id: p.id,
@@ -72,7 +79,12 @@ export const createPost = async (post: Post): Promise<Post> => {
         saveLocalPosts([...posts, newPost]);
         return newPost;
     }
+
+    const userId = await getCurrentUserId();
+    if (!userId) throw new Error('User not authenticated');
+
     const payload = {
+        user_id: userId,
         title: post.title,
         content: post.content,
         platform: post.platform,
@@ -124,7 +136,7 @@ export const getCampaigns = async (): Promise<Campaign[]> => {
     if (!isSupabaseConfigured || !supabase) {
         return getLocalCampaigns();
     }
-    const { data, error } = await supabase.from('campaigns').select('*');
+    const { data, error } = await supabase.from('campaigns').select('*').order('start_date', { ascending: true });
     if (error) throw error;
     return data.map((c: any) => ({
         id: c.id,
@@ -143,7 +155,12 @@ export const createCampaign = async (campaign: Campaign): Promise<Campaign> => {
         saveLocalCampaigns([...campaigns, newCampaign]);
         return newCampaign;
     }
+
+    const userId = await getCurrentUserId();
+    if (!userId) throw new Error('User not authenticated');
+
     const payload = {
+        user_id: userId,
         name: campaign.name,
         description: campaign.description,
         start_date: campaign.startDate.toISOString(),
@@ -187,8 +204,11 @@ export const uploadMediaItem = async (file: File): Promise<MediaItem> => {
         return newItem;
     }
 
+    const userId = await getCurrentUserId();
+    if (!userId) throw new Error('User not authenticated');
+
     // 1. Upload file to Storage (assuming bucket 'media' exists)
-    const fileName = `${Date.now()}-${file.name}`;
+    const fileName = `${userId}/${Date.now()}-${file.name}`;
     const { error: uploadError } = await supabase.storage.from('media').upload(fileName, file);
 
     if (uploadError) throw uploadError;
@@ -198,6 +218,7 @@ export const uploadMediaItem = async (file: File): Promise<MediaItem> => {
 
     // 3. Save metadata to Database
     const payload = {
+        user_id: userId,
         name: file.name,
         url: urlData.publicUrl,
         type: file.type
@@ -235,4 +256,81 @@ export const deleteMediaItem = async (id: string, url: string): Promise<void> =>
     } catch (e) {
         console.error("Failed to delete file from storage", e);
     }
+};
+
+// =====================
+// DESIGN STUDIOS
+// =====================
+
+export interface StudioLink {
+    id: string;
+    name: string;
+    url: string;
+    imageUrl: string;
+}
+
+const getLocalStudios = (): StudioLink[] => {
+    try {
+        const data = localStorage.getItem('socialflow_studios');
+        if (!data) return [];
+        return JSON.parse(data);
+    } catch { return []; }
+};
+
+const saveLocalStudios = (studios: StudioLink[]) => {
+    localStorage.setItem('socialflow_studios', JSON.stringify(studios));
+};
+
+export const getStudios = async (): Promise<StudioLink[]> => {
+    if (!isSupabaseConfigured || !supabase) {
+        return getLocalStudios();
+    }
+    const { data, error } = await supabase.from('design_studios').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    return data.map((s: any) => ({
+        id: s.id,
+        name: s.name,
+        url: s.url,
+        imageUrl: s.image_url || ''
+    }));
+};
+
+export const createStudio = async (studio: Omit<StudioLink, 'id'>): Promise<StudioLink> => {
+    if (!isSupabaseConfigured || !supabase) {
+        const studios = getLocalStudios();
+        const newStudio = { ...studio, id: `local-${Date.now()}` };
+        saveLocalStudios([newStudio, ...studios]);
+        return newStudio;
+    }
+
+    const userId = await getCurrentUserId();
+    if (!userId) throw new Error('User not authenticated');
+
+    const payload = {
+        user_id: userId,
+        name: studio.name,
+        url: studio.url,
+        image_url: studio.imageUrl || null
+    };
+
+    const { data, error } = await supabase.from('design_studios').insert([payload]).select().single();
+    if (error) throw error;
+
+    return {
+        id: data.id,
+        name: data.name,
+        url: data.url,
+        imageUrl: data.image_url || ''
+    };
+};
+
+export const deleteStudio = async (id: string): Promise<void> => {
+    if (!isSupabaseConfigured || !supabase) {
+        const studios = getLocalStudios();
+        saveLocalStudios(studios.filter(s => s.id !== id));
+        return;
+    }
+
+    const { error } = await supabase.from('design_studios').delete().eq('id', id);
+    if (error) throw error;
 };

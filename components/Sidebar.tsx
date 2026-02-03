@@ -10,7 +10,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const menuItems = [
     { id: 'calendar', label: 'التقويم الشهري', icon: '📅' },
     { id: 'posts', label: 'المنشورات', icon: '📝' },
+    { id: 'gantt', label: 'مخطط غانت', icon: '📊' },
     { id: 'media', label: 'مكتبة الوسائط', icon: '🖼️' },
+    { id: 'studios', label: 'استديوهات التصميم', icon: '🎨' },
   ];
 
   return (
