@@ -27,6 +27,11 @@ const App: React.FC = () => {
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [initialDate, setInitialDate] = useState<Date | undefined>(undefined);
 
+  // JSON Import Modal State
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importJsonText, setImportJsonText] = useState('');
+  const [importing, setImporting] = useState(false);
+
   // Load data from Supabase on mount (or when user changes)
   useEffect(() => {
     // Don't fetch if still loading auth or no user when Supabase is configured
@@ -182,10 +187,6 @@ const App: React.FC = () => {
   // =====================
   // JSON EXPORT / IMPORT
   // =====================
-
-  const [showImportModal, setShowImportModal] = useState(false);
-  const [importJsonText, setImportJsonText] = useState('');
-  const [importing, setImporting] = useState(false);
 
   const handleExportPosts = () => {
     const exportData = {
