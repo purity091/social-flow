@@ -379,13 +379,13 @@ const App: React.FC = () => {
               </button>
             )}
 
-            {activeTab === 'posts' && (
+            {activeTab !== 'media' && activeTab !== 'studios' && (
               <>
                 <button
                   onClick={handleExportPosts}
                   className="px-4 py-2.5 rounded-xl font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-all flex items-center gap-2"
                 >
-                  <span>📥</span> تصدير JSON
+                  <span>📥</span> تصدير
                 </button>
                 <button
                   onClick={() => setShowImportModal(true)}
@@ -423,28 +423,65 @@ const App: React.FC = () => {
       {/* JSON Import Modal */}
       {showImportModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-6">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl p-6 max-h-[90vh] overflow-y-auto">
             <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
               <span>📤</span> استيراد منشورات من JSON
             </h3>
 
-            <p className="text-sm text-gray-500 mb-4">
-              الصق نص JSON هنا. يمكن أن يكون مصفوفة منشورات مباشرة <code className="bg-gray-100 px-1 rounded">[...]</code> أو كائن يحتوي على مفتاح posts <code className="bg-gray-100 px-1 rounded">{"{"}"posts": [...]{"}"}</code>
-            </p>
+            {/* Example Template */}
+            <div className="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-200">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-bold text-gray-600">📋 نموذج JSON (انسخ وعدّل):</span>
+                <button
+                  onClick={() => {
+                    const template = `[
+  {
+    "title": "منشور ترويجي - العرض الأسبوعي",
+    "content": "🔥 عرض خاص لهذا الأسبوع! خصم 30% على جميع المنتجات",
+    "platform": "Instagram",
+    "status": "Scheduled",
+    "date": "2024-03-15T10:00:00Z",
+    "programId": "campaign-march-2024",
+    "programName": "حملة مارس التسويقية"
+  },
+  {
+    "title": "نصيحة اليوم",
+    "content": "💡 نصيحة: خطط لمحتواك قبل أسبوع على الأقل",
+    "platform": "Twitter",
+    "status": "Draft",
+    "date": "2024-03-16T14:00:00Z",
+    "programId": "campaign-march-2024",
+    "programName": "حملة مارس التسويقية"
+  },
+  {
+    "title": "قصة نجاح عميل",
+    "content": "📈 شاهد كيف ضاعف عميلنا مبيعاته في شهر واحد...",
+    "platform": "LinkedIn",
+    "status": "Draft",
+    "date": "2024-03-17T09:00:00Z"
+  }
+]`;
+                    navigator.clipboard.writeText(template);
+                    alert('تم نسخ النموذج!');
+                  }}
+                  className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg hover:bg-indigo-200 transition-colors"
+                >
+                  📋 نسخ النموذج
+                </button>
+              </div>
+              <div className="text-xs text-gray-500 space-y-1">
+                <p><strong>الحقول المطلوبة:</strong> <code className="bg-white px-1 rounded">title</code></p>
+                <p><strong>حقول اختيارية:</strong> <code className="bg-white px-1 rounded">content, platform, status, date, programId, programName</code></p>
+                <p><strong>المنصات:</strong> Instagram, Twitter, LinkedIn, TikTok, Facebook</p>
+                <p><strong>الحالات:</strong> Draft, Scheduled, Published</p>
+              </div>
+            </div>
 
             <textarea
               value={importJsonText}
               onChange={(e) => setImportJsonText(e.target.value)}
-              className="w-full h-64 p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-200 focus:border-amber-500 outline-none font-mono text-sm resize-none"
-              placeholder={`[
-  {
-    "title": "عنوان المنشور",
-    "content": "محتوى المنشور",
-    "platform": "Instagram",
-    "status": "Draft",
-    "date": "2024-03-15T10:00:00Z"
-  }
-]`}
+              className="w-full h-56 p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-200 focus:border-amber-500 outline-none font-mono text-sm resize-none"
+              placeholder="الصق نص JSON هنا..."
               dir="ltr"
             />
 
