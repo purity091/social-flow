@@ -134,12 +134,17 @@ const LoginPage: React.FC = () => {
                     </form>
 
                     <div className="mt-6 text-center">
+                        {/* 
                         <button
                             onClick={() => { setIsLoginMode(!isLoginMode); setError(''); setMessage(''); }}
                             className="text-white/70 hover:text-white text-sm transition-colors"
                         >
                             {isLoginMode ? 'ليس لديك حساب؟ سجل الآن' : 'لديك حساب؟ سجل دخول'}
                         </button>
+                        */}
+                        <p className="text-white/40 text-xs">
+                            التسجيل متوقف حالياً. يرجى التواصل مع الإدارة للحصول على حساب.
+                        </p>
                     </div>
                 </div>
 
