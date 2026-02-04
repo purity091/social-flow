@@ -348,3 +348,25 @@ export const deleteStudio = async (id: string): Promise<void> => {
     const { error } = await supabase.from('design_studios').delete().eq('id', id);
     if (error) throw error;
 };
+
+export const updateStudio = async (studio: StudioLink): Promise<StudioLink> => {
+    if (!isSupabaseConfigured || !supabase) {
+        const studios = getLocalStudios();
+        const updated = studios.map(s => s.id === studio.id ? studio : s);
+        saveLocalStudios(updated);
+        return studio;
+    }
+
+    const payload = {
+        name: studio.name,
+        url: studio.url,
+        image_url: studio.imageUrl || null,
+        image_size: studio.imageSize || null,
+        usage_tips: studio.usageTips || null
+    };
+
+    const { error } = await supabase.from('design_studios').update(payload).eq('id', studio.id);
+    if (error) throw error;
+
+    return studio;
+};
