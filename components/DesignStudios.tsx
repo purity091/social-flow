@@ -8,7 +8,7 @@ const DesignStudios: React.FC = () => {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [newStudio, setNewStudio] = useState({ name: '', url: '', imageUrl: '' });
+    const [newStudio, setNewStudio] = useState({ name: '', url: '', imageUrl: '', imageSize: '', usageTips: '' });
 
     // Load studios from database
     useEffect(() => {
@@ -33,11 +33,13 @@ const DesignStudios: React.FC = () => {
             const saved = await api.createStudio({
                 name: newStudio.name,
                 url: newStudio.url,
-                imageUrl: newStudio.imageUrl || ''
+                imageUrl: newStudio.imageUrl || '',
+                imageSize: newStudio.imageSize || '',
+                usageTips: newStudio.usageTips || ''
             });
 
             setStudios(prev => [saved, ...prev]);
-            setNewStudio({ name: '', url: '', imageUrl: '' });
+            setNewStudio({ name: '', url: '', imageUrl: '', imageSize: '', usageTips: '' });
             setShowAddModal(false);
         } catch (error) {
             console.error('Failed to save studio:', error);
@@ -99,6 +101,8 @@ const DesignStudios: React.FC = () => {
                                     <th className="text-right py-4 px-4 text-sm font-bold text-gray-600 w-24">الصورة</th>
                                     <th className="text-right py-4 px-4 text-sm font-bold text-gray-600">اسم الاستديو</th>
                                     <th className="text-right py-4 px-4 text-sm font-bold text-gray-600">الرابط</th>
+                                    <th className="text-right py-4 px-4 text-sm font-bold text-gray-600 w-32">حجم الصورة</th>
+                                    <th className="text-right py-4 px-4 text-sm font-bold text-gray-600" style={{ minWidth: '250px' }}>نصائح الاستخدام</th>
                                     <th className="text-center py-4 px-4 text-sm font-bold text-gray-600 w-28">إجراءات</th>
                                 </tr>
                             </thead>
@@ -145,6 +149,43 @@ const DesignStudios: React.FC = () => {
                                                 <span className="max-w-[300px] truncate">{studio.url}</span>
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
                                             </a>
+                                        </td>
+
+                                        {/* Image Size Column */}
+                                        <td className="py-4 px-4">
+                                            {studio.imageSize ? (
+                                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                                        <line x1="3" y1="9" x2="21" y2="9" />
+                                                        <line x1="9" y1="21" x2="9" y2="9" />
+                                                    </svg>
+                                                    {studio.imageSize}
+                                                </span>
+                                            ) : (
+                                                <span className="text-gray-400 text-sm">—</span>
+                                            )}
+                                        </td>
+
+                                        {/* Usage Tips Column */}
+                                        <td className="py-4 px-4">
+                                            {studio.usageTips ? (
+                                                <div className="max-w-md">
+                                                    <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed line-clamp-3" title={studio.usageTips}>
+                                                        {studio.usageTips}
+                                                    </p>
+                                                    {studio.usageTips.length > 150 && (
+                                                        <button
+                                                            onClick={() => alert(studio.usageTips)}
+                                                            className="text-purple-600 text-xs mt-1 hover:underline"
+                                                        >
+                                                            عرض المزيد...
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <span className="text-gray-400 text-sm">لا توجد نصائح</span>
+                                            )}
                                         </td>
 
                                         {/* Actions Column */}
@@ -249,11 +290,37 @@ const DesignStudios: React.FC = () => {
                                 />
                                 <p className="text-xs text-gray-400 mt-1">يمكنك إضافة رابط لشعار أو صورة نموذجية</p>
                             </div>
+
+                            {/* Image Size Field */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">تصنيف حجم الصورة</label>
+                                <input
+                                    type="text"
+                                    value={newStudio.imageSize}
+                                    onChange={(e) => setNewStudio({ ...newStudio, imageSize: e.target.value })}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-200 focus:border-purple-500 outline-none"
+                                    placeholder="مثال: 1080x1080، 1200x628، Story 9:16"
+                                />
+                                <p className="text-xs text-gray-400 mt-1">أبعاد التصميمات المتاحة في هذا الاستديو</p>
+                            </div>
+
+                            {/* Usage Tips Field */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">نصائح الاستخدام</label>
+                                <textarea
+                                    value={newStudio.usageTips}
+                                    onChange={(e) => setNewStudio({ ...newStudio, usageTips: e.target.value })}
+                                    rows={4}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-200 focus:border-purple-500 outline-none resize-none"
+                                    placeholder="أضف نصائح مفصلة حول كيفية استخدام هذا الاستديو، مثل:\n- أفضل الاستخدامات\n- خطوات التصميم\n- ملاحظات مهمة..."
+                                ></textarea>
+                                <p className="text-xs text-gray-400 mt-1">شرح تفصيلي لطريقة الاستخدام والنصائح المهمة</p>
+                            </div>
                         </div>
 
                         <div className="flex gap-3 mt-6">
                             <button
-                                onClick={() => { setShowAddModal(false); setNewStudio({ name: '', url: '', imageUrl: '' }); }}
+                                onClick={() => { setShowAddModal(false); setNewStudio({ name: '', url: '', imageUrl: '', imageSize: '', usageTips: '' }); }}
                                 className="flex-1 py-3 border border-gray-200 rounded-xl font-medium text-gray-600 hover:bg-gray-50 transition-colors"
                             >
                                 إلغاء

@@ -273,6 +273,8 @@ export interface StudioLink {
     name: string;
     url: string;
     imageUrl: string;
+    imageSize: string; // تصنيف حجم الصورة (مثل: 1080x1080، 1200x628، إلخ)
+    usageTips: string; // نصائح كيفية الاستخدام
 }
 
 const getLocalStudios = (): StudioLink[] => {
@@ -297,14 +299,16 @@ export const getStudios = async (): Promise<StudioLink[]> => {
         id: s.id,
         name: s.name,
         url: s.url,
-        imageUrl: s.image_url || ''
+        imageUrl: s.image_url || '',
+        imageSize: s.image_size || '',
+        usageTips: s.usage_tips || ''
     }));
 };
 
 export const createStudio = async (studio: Omit<StudioLink, 'id'>): Promise<StudioLink> => {
     if (!isSupabaseConfigured || !supabase) {
         const studios = getLocalStudios();
-        const newStudio = { ...studio, id: `local-${Date.now()}` };
+        const newStudio = { ...studio, id: `local-${Date.now()}`, imageSize: studio.imageSize || '', usageTips: studio.usageTips || '' };
         saveLocalStudios([newStudio, ...studios]);
         return newStudio;
     }
@@ -316,7 +320,9 @@ export const createStudio = async (studio: Omit<StudioLink, 'id'>): Promise<Stud
         user_id: userId,
         name: studio.name,
         url: studio.url,
-        image_url: studio.imageUrl || null
+        image_url: studio.imageUrl || null,
+        image_size: studio.imageSize || null,
+        usage_tips: studio.usageTips || null
     };
 
     const { data, error } = await supabase.from('design_studios').insert([payload]).select().single();
@@ -326,7 +332,9 @@ export const createStudio = async (studio: Omit<StudioLink, 'id'>): Promise<Stud
         id: data.id,
         name: data.name,
         url: data.url,
-        imageUrl: data.image_url || ''
+        imageUrl: data.image_url || '',
+        imageSize: data.image_size || '',
+        usageTips: data.usage_tips || ''
     };
 };
 
