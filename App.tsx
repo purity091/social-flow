@@ -254,11 +254,27 @@ const App: React.FC = () => {
         return;
       }
 
+      // Map common platform names to our Platform enum
+      const mapPlatform = (name: string | undefined): Platform => {
+        if (!name) return Platform.INSTAGRAM;
+        const lower = name.toLowerCase();
+        if (lower === 'twitter' || lower === 'x') return Platform.X;
+        if (lower === 'instagram') return Platform.INSTAGRAM;
+        if (lower === 'linkedin') return Platform.LINKEDIN;
+        if (lower === 'tiktok') return Platform.TIKTOK;
+        if (lower === 'facebook') return Platform.FACEBOOK;
+        // Check if it already matches
+        if (Object.values(Platform).includes(name as Platform)) {
+          return name as Platform;
+        }
+        return Platform.INSTAGRAM;
+      };
+
       const postsToImport: Post[] = postsArray.map((p: any, index: number) => ({
         id: '',
         title: p.title || `منشور ${index + 1}`,
         content: p.content || '',
-        platform: p.platform || Platform.INSTAGRAM,
+        platform: mapPlatform(p.platform),
         status: p.status || 'Draft',
         date: new Date(p.date || Date.now()),
         imageUrl: p.imageUrl || undefined,

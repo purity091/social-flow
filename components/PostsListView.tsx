@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Post, Platform } from '../types';
-import { PLATFORM_CONFIG } from '../constants';
+import { getPlatformConfig } from '../constants';
 
 interface PostsListViewProps {
   posts: Post[];
@@ -35,7 +35,7 @@ const PostsListView: React.FC<PostsListViewProps> = ({ posts, onDeletePost, onEd
 
       {platformsWithPosts.map(platform => {
         const platformPosts = posts.filter(p => p.platform === platform);
-        const config = PLATFORM_CONFIG[platform];
+        const config = getPlatformConfig(platform);
         const isPlatformExpanded = expandedPlatforms[platform];
 
         // Group posts by programId
@@ -124,8 +124,8 @@ const PostCard: React.FC<PostCardProps> = ({ post, onDelete, onEdit }) => (
     <div className="flex justify-between items-start mb-3">
       <span className="text-[10px] font-mono text-gray-400">{post.date.toLocaleDateString('ar-SA')}</span>
       <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${post.status === 'Published' ? 'bg-green-50 text-green-600' :
-          post.status === 'Scheduled' ? 'bg-orange-50 text-orange-600' :
-            'bg-gray-100 text-gray-500' // Draft
+        post.status === 'Scheduled' ? 'bg-orange-50 text-orange-600' :
+          'bg-gray-100 text-gray-500' // Draft
         }`}>
         {post.status}
       </span>

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Post, Platform } from '../types';
-import { PLATFORM_CONFIG } from '../constants';
+import { getPlatformConfig } from '../constants';
 
 interface CalendarViewProps {
   posts: Post[];
@@ -67,11 +67,11 @@ const CalendarView: React.FC<CalendarViewProps> = ({ posts, onAddPost, onEditPos
               className={`
                 text-[11px] px-2 py-1.5 rounded-lg truncate flex items-center gap-2 cursor-pointer
                 shadow-sm hover:shadow-md transition-all hover:scale-[1.02] active:scale-95 border border-transparent hover:border-white/20
-                ${PLATFORM_CONFIG[post.platform].color} text-white
+                ${getPlatformConfig(post.platform).color} text-white
                 ${post.status === 'Draft' ? 'opacity-80 border-dashed border-white/50 bg-opacity-70' : ''}
               `}
             >
-              <div className="shrink-0">{PLATFORM_CONFIG[post.platform].icon('w-3.5 h-3.5')}</div>
+              <div className="shrink-0">{getPlatformConfig(post.platform).icon('w-3.5 h-3.5')}</div>
               <span className="truncate font-medium">{post.title}</span>
             </div>
           ))}
@@ -107,7 +107,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ posts, onAddPost, onEditPos
         <div className="flex flex-wrap gap-4">
           {Object.values(Platform).map(p => (
             <div key={p} className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-gray-50 border border-gray-100">
-              <div className={`w-2 h-2 rounded-full ${PLATFORM_CONFIG[p].color} ring-2 ring-white`}></div>
+              <div className={`w-2 h-2 rounded-full ${getPlatformConfig(p).color} ring-2 ring-white`}></div>
               <span className="text-[10px] font-semibold text-gray-600">{p}</span>
             </div>
           ))}

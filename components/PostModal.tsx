@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Post, Platform, MediaItem } from '../types';
-import { PLATFORM_CONFIG } from '../constants';
+import { getPlatformConfig } from '../constants';
 import MediaLibrary from './MediaLibrary';
 
 interface PostModalProps {
@@ -109,11 +109,11 @@ const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, onSave, post, in
                         type="button"
                         onClick={() => setFormData({ ...formData, platform: p })}
                         className={`flex flex-col items-center justify-center p-2 rounded-lg border transition-all ${formData.platform === p
-                            ? `bg-indigo-50 border-indigo-500 text-indigo-700 ring-1 ring-indigo-500`
-                            : 'border-gray-200 hover:bg-gray-50 text-gray-600'
+                          ? `bg-indigo-50 border-indigo-500 text-indigo-700 ring-1 ring-indigo-500`
+                          : 'border-gray-200 hover:bg-gray-50 text-gray-600'
                           }`}
                       >
-                        <div className="scale-75">{PLATFORM_CONFIG[p]?.icon('w-6 h-6')}</div>
+                        <div className="scale-75">{getPlatformConfig(p).icon('w-6 h-6')}</div>
                         <span className="text-[10px] mt-1 font-medium">{p}</span>
                       </button>
                     ))}
