@@ -4,7 +4,13 @@ export enum Platform {
   LINKEDIN = 'LinkedIn',
   X = 'X (Twitter)',
   TIKTOK = 'TikTok',
-  FACEBOOK = 'Facebook'
+  FACEBOOK = 'Facebook',
+  WHATSAPP = 'WhatsApp',
+  TELEGRAM = 'Telegram',
+  SNAPCHAT = 'Snapchat',
+  YOUTUBE = 'YouTube',
+  THREADS = 'Threads',
+  PINTEREST = 'Pinterest'
 }
 
 export type GanttViewMode = 'day' | 'month' | 'year';

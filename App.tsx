@@ -263,6 +263,12 @@ const App: React.FC = () => {
         if (lower === 'linkedin') return Platform.LINKEDIN;
         if (lower === 'tiktok') return Platform.TIKTOK;
         if (lower === 'facebook') return Platform.FACEBOOK;
+        if (lower === 'whatsapp') return Platform.WHATSAPP;
+        if (lower === 'telegram') return Platform.TELEGRAM;
+        if (lower === 'snapchat') return Platform.SNAPCHAT;
+        if (lower === 'youtube') return Platform.YOUTUBE;
+        if (lower === 'threads') return Platform.THREADS;
+        if (lower === 'pinterest') return Platform.PINTEREST;
         // Check if it already matches
         if (Object.values(Platform).includes(name as Platform)) {
           return name as Platform;

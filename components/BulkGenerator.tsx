@@ -88,7 +88,9 @@ const BulkGenerator: React.FC<BulkGeneratorProps> = ({ onPostsGenerated }) => {
             onChange={(e) => setPlatform(e.target.value as Platform)}
             className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none"
           >
-            {Object.values(Platform).map(p => <option key={p} value={p}>{p}</option>)}
+            {Object.values(Platform).map(p => (
+              <option key={p} value={p}>{p}</option>
+            ))}
           </select>
         </div>
 
@@ -130,8 +132,8 @@ const BulkGenerator: React.FC<BulkGeneratorProps> = ({ onPostsGenerated }) => {
             onClick={handleGenerate}
             disabled={loading}
             className={`w-full py-3.5 rounded-xl font-bold shadow-lg transition-all ${loading
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-100'
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-100'
               }`}
           >
             {loading ? 'جاري المعالجة...' : 'توليد الجدول الزمني'}
