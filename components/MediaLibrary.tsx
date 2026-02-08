@@ -1,11 +1,20 @@
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { MediaItem, MediaFolder } from '../types';
+
+interface UploadingFile {
+    id: string;
+    file: File;
+    name: string;
+    progress: number;
+    status: 'pending' | 'uploading' | 'success' | 'error';
+    error?: string;
+}
 
 interface MediaLibraryProps {
     mediaItems: MediaItem[];
     mediaFolders: MediaFolder[];
-    onUpload: (files: FileList, folderId?: string | null) => void;
+    onUpload: (files: File[], folderId?: string | null, onProgress?: (fileId: string, progress: number) => void) => Promise<void>;
     onDelete: (id: string) => void;
     onSelect?: (item: MediaItem) => void;
     isSelectMode?: boolean;
@@ -36,11 +45,111 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
     const [movingItem, setMovingItem] = useState<MediaItem | null>(null);
     const [dragOverFolderId, setDragOverFolderId] = useState<string | null>(null);
 
+    // Upload state
+    const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
+    const [isDragOver, setIsDragOver] = useState(false);
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
-            onUpload(e.target.files, currentFolderId);
+            handleFilesUpload(Array.from(e.target.files));
+        }
+        // Reset input
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
         }
     };
+
+    const handleFilesUpload = async (files: File[]) => {
+        // Create upload entries
+        const newUploads: UploadingFile[] = files.map((file, index) => ({
+            id: `upload-${Date.now()}-${index}`,
+            file,
+            name: file.name,
+            progress: 0,
+            status: 'pending' as const
+        }));
+
+        setUploadingFiles(prev => [...prev, ...newUploads]);
+
+        // Handle progress callback
+        const onProgress = (fileId: string, progress: number) => {
+            setUploadingFiles(prev => prev.map(f =>
+                f.id === fileId ? { ...f, progress, status: 'uploading' as const } : f
+            ));
+        };
+
+        // Start upload
+        try {
+            await onUpload(files, currentFolderId, onProgress);
+
+            // Mark all as success
+            setUploadingFiles(prev => prev.map(f =>
+                newUploads.find(u => u.id === f.id)
+                    ? { ...f, progress: 100, status: 'success' as const }
+                    : f
+            ));
+
+            // Remove successful uploads after delay
+            setTimeout(() => {
+                setUploadingFiles(prev => prev.filter(f =>
+                    !newUploads.find(u => u.id === f.id)
+                ));
+            }, 2000);
+        } catch (error) {
+            // Mark as error
+            setUploadingFiles(prev => prev.map(f =>
+                newUploads.find(u => u.id === f.id)
+                    ? { ...f, status: 'error' as const, error: 'فشل الرفع' }
+                    : f
+            ));
+        }
+    };
+
+    // Drag and drop for file upload
+    const handleDragEnter = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.dataTransfer.types.includes('Files')) {
+            setIsDragOver(true);
+        }
+    }, []);
+
+    const handleDragLeaveUpload = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        // Only set false if leaving the container entirely
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX;
+        const y = e.clientY;
+        if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+            setIsDragOver(false);
+        }
+    }, []);
+
+    const handleDragOverUpload = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+    }, []);
+
+    const handleDropUpload = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+
+        const droppedFiles = e.dataTransfer.files;
+        const imageFiles: File[] = [];
+
+        for (let i = 0; i < droppedFiles.length; i++) {
+            const file = droppedFiles[i];
+            if (file.type.startsWith('image/')) {
+                imageFiles.push(file);
+            }
+        }
+
+        if (imageFiles.length > 0) {
+            handleFilesUpload(imageFiles);
+        }
+    }, [currentFolderId]);
 
     const handleCreateFolder = () => {
         if (newFolderName.trim()) {
@@ -65,6 +174,10 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
         return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
     };
 
+    const removeUploadingFile = (id: string) => {
+        setUploadingFiles(prev => prev.filter(f => f.id !== id));
+    };
+
     // Get current folder's children folders
     const currentFolders = mediaFolders.filter(f => f.parentId === currentFolderId);
 
@@ -87,7 +200,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
 
     const breadcrumbs = getBreadcrumbPath();
 
-    // Drag and drop handlers
+    // Drag and drop for moving items between folders
     const handleDragStart = (e: React.DragEvent, item: MediaItem) => {
         e.dataTransfer.setData('mediaItemId', item.id);
     };
@@ -114,7 +227,24 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
     };
 
     return (
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-[calc(100vh-140px)]">
+        <div
+            className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-[calc(100vh-140px)] relative"
+            onDragEnter={handleDragEnter}
+            onDragOver={handleDragOverUpload}
+            onDragLeave={handleDragLeaveUpload}
+            onDrop={handleDropUpload}
+        >
+            {/* Drag Overlay */}
+            {isDragOver && (
+                <div className="absolute inset-0 bg-indigo-500/20 backdrop-blur-sm z-50 flex items-center justify-center border-4 border-dashed border-indigo-500 rounded-3xl">
+                    <div className="text-center">
+                        <div className="text-6xl mb-4 animate-bounce">📥</div>
+                        <p className="text-2xl font-bold text-indigo-700">اسحب الملفات هنا للرفع</p>
+                        <p className="text-indigo-600 mt-2">يمكنك رفع عدة صور في نفس الوقت</p>
+                    </div>
+                </div>
+            )}
+
             {/* Header */}
             <div className="p-6 border-b border-gray-100 bg-gray-50/50">
                 <div className="flex justify-between items-center mb-4">
@@ -123,7 +253,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                             <span>🖼️</span>
                             <span>مكتبة الوسائط</span>
                         </h2>
-                        <p className="text-gray-500 text-sm mt-1">إدارة جميع الصور والملفات الخاصة بحملاتك</p>
+                        <p className="text-gray-500 text-sm mt-1">اسحب وأفلت الصور في أي مكان أو استخدم زر الرفع</p>
                     </div>
                     <div className="flex gap-3">
                         <button
@@ -156,8 +286,8 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                     <button
                         onClick={() => setCurrentFolderId(null)}
                         className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all ${currentFolderId === null
-                                ? 'bg-indigo-100 text-indigo-700'
-                                : 'text-gray-600 hover:bg-gray-100'
+                            ? 'bg-indigo-100 text-indigo-700'
+                            : 'text-gray-600 hover:bg-gray-100'
                             }`}
                         onDragOver={(e) => handleDragOver(e, null)}
                         onDragLeave={handleDragLeave}
@@ -172,8 +302,8 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                             <button
                                 onClick={() => setCurrentFolderId(folder.id)}
                                 className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all ${index === breadcrumbs.length - 1
-                                        ? 'bg-indigo-100 text-indigo-700'
-                                        : 'text-gray-600 hover:bg-gray-100'
+                                    ? 'bg-indigo-100 text-indigo-700'
+                                    : 'text-gray-600 hover:bg-gray-100'
                                     }`}
                                 onDragOver={(e) => handleDragOver(e, folder.id)}
                                 onDragLeave={handleDragLeave}
@@ -187,12 +317,69 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                 </div>
             </div>
 
+            {/* Upload Progress Panel */}
+            {uploadingFiles.length > 0 && (
+                <div className="border-b border-gray-100 bg-white p-4">
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-bold text-gray-700 flex items-center gap-2">
+                            <span className="animate-pulse">⬆️</span>
+                            جاري الرفع ({uploadingFiles.length} ملف)
+                        </h3>
+                        <button
+                            onClick={() => setUploadingFiles([])}
+                            className="text-xs text-gray-400 hover:text-gray-600"
+                        >
+                            إغلاق الكل
+                        </button>
+                    </div>
+                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                        {uploadingFiles.map(file => (
+                            <div key={file.id} className="flex items-center gap-3 bg-gray-50 rounded-lg p-2">
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-gray-700 truncate">{file.name}</p>
+                                    <div className="mt-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                        <div
+                                            className={`h-full rounded-full transition-all duration-300 ${file.status === 'success' ? 'bg-green-500' :
+                                                file.status === 'error' ? 'bg-red-500' :
+                                                    'bg-indigo-500'
+                                                }`}
+                                            style={{ width: `${file.progress}%` }}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    {file.status === 'success' && (
+                                        <span className="text-green-500 text-lg">✓</span>
+                                    )}
+                                    {file.status === 'error' && (
+                                        <span className="text-red-500 text-lg">✕</span>
+                                    )}
+                                    {(file.status === 'pending' || file.status === 'uploading') && (
+                                        <span className="text-indigo-500 text-sm font-medium">{file.progress}%</span>
+                                    )}
+                                    <button
+                                        onClick={() => removeUploadingFile(file.id)}
+                                        className="p-1 text-gray-400 hover:text-gray-600"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Content Grid */}
             <div className="flex-1 overflow-y-auto p-6 bg-slate-50">
                 {currentFolders.length === 0 && currentItems.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-gray-400 border-2 border-dashed border-gray-200 rounded-2xl">
-                        <div className="text-4xl mb-4 opacity-50">📂</div>
-                        <p>المجلد فارغ، قم برفع بعض الصور أو إنشاء مجلد جديد</p>
+                    <div
+                        className="h-full flex flex-col items-center justify-center text-gray-400 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/50 transition-all"
+                        onClick={() => fileInputRef.current?.click()}
+                    >
+                        <div className="text-6xl mb-4 opacity-50">📂</div>
+                        <p className="text-lg font-medium">المجلد فارغ</p>
+                        <p className="text-sm mt-2">اسحب الصور هنا أو انقر للرفع</p>
                     </div>
                 ) : (
                     <div className="space-y-6">

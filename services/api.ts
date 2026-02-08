@@ -41,6 +41,16 @@ const saveLocalMediaItems = (items: MediaItem[]) => {
     localStorage.setItem('socialflow_media', JSON.stringify(items));
 };
 
+// Convert File to base64 for local storage persistence
+const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+};
+
 // Helper to get current user ID
 const getCurrentUserId = async (): Promise<string | null> => {
     if (!supabase) return null;
@@ -322,10 +332,11 @@ export const uploadMediaItem = async (file: File, folderId?: string | null): Pro
     }
 
     if (!isSupabaseConfigured || !supabase) {
-        // Local mode: use object URL (preserves original file)
+        // Local mode: convert to base64 for persistent storage
+        const base64Url = await fileToBase64(file);
         const newItem: MediaItem = {
             id: `local-${Date.now()}-${Math.random()}`,
-            url: URL.createObjectURL(file),
+            url: base64Url,
             name: file.name,
             type: file.type,
             date: new Date(),
@@ -342,15 +353,22 @@ export const uploadMediaItem = async (file: File, folderId?: string | null): Pro
     const userId = await getCurrentUserId();
     if (!userId) throw new Error('User not authenticated');
 
+    // Sanitize filename for storage (remove special chars, keep extension)
+    const fileExtension = file.name.split('.').pop() || 'jpg';
+    const sanitizedName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
+
     // 1. Upload file to Storage WITHOUT any compression (preserving original size)
-    const fileName = `${userId}/${Date.now()}-${file.name}`;
+    const fileName = `${userId}/${sanitizedName}`;
     const { error: uploadError } = await supabase.storage.from('media').upload(fileName, file, {
         cacheControl: '3600',
         upsert: false,
-        // No contentType transformation - keeps original
+        contentType: file.type
     });
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        throw new Error(`فشل رفع الملف: ${uploadError.message}`);
+    }
 
     // 2. Get Public URL
     const { data: urlData } = supabase.storage.from('media').getPublicUrl(fileName);

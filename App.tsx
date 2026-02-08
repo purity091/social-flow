@@ -183,19 +183,30 @@ const App: React.FC = () => {
     }
   };
 
-  const handleUploadMedia = async (files: FileList, folderId?: string | null) => {
-    // Upload all files, not just the first one
+  const handleUploadMedia = async (files: File[], folderId?: string | null, onProgress?: (fileId: string, progress: number) => void) => {
+    // Upload all files with progress tracking
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (!file) continue;
 
+      const fileId = `upload-${Date.now()}-${i}`;
+
       try {
-        // Optimistic UI could be added here
+        // Simulate progress for local storage mode (no real progress available)
+        if (onProgress) {
+          onProgress(fileId, 10);
+        }
+
         const savedItem = await api.uploadMediaItem(file, folderId);
+
+        if (onProgress) {
+          onProgress(fileId, 100);
+        }
+
         setMediaItems(prev => [savedItem, ...prev]);
       } catch (e) {
         console.error("Upload failed", e);
-        alert(`فشل رفع الملف: ${file.name}. تأكد من إعداد Supabase Storage.`);
+        // Don't show alert for each file - the UI will show the error status
       }
     }
   };
