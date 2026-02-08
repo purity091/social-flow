@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Post, Platform } from '../types';
 import { getPlatformConfig } from '../constants';
+import { ChevronDown, Package } from 'lucide-react';
 
 interface PostsListViewProps {
   posts: Post[];
@@ -68,7 +69,9 @@ const PostsListView: React.FC<PostsListViewProps> = ({ posts, onDeletePost, onEd
                   {platformPosts.length} منشور
                 </span>
               </div>
-              <span className={`transform transition-transform ${isPlatformExpanded ? 'rotate-180' : ''}`}>▼</span>
+              <div className={`transform transition-transform ${isPlatformExpanded ? 'rotate-180' : ''}`}>
+                <ChevronDown size={20} />
+              </div>
             </button>
 
             {isPlatformExpanded && (
@@ -81,11 +84,13 @@ const PostsListView: React.FC<PostsListViewProps> = ({ posts, onDeletePost, onEd
                       className="w-full flex items-center justify-between p-3 bg-indigo-50/50 hover:bg-indigo-50 transition-colors"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-indigo-600">📦</span>
+                        <Package size={16} className="text-indigo-600" />
                         <span className="font-bold text-sm text-indigo-900">{data.name}</span>
                         <span className="text-[10px] text-indigo-400">({data.posts.length} منشور)</span>
                       </div>
-                      <span className={`text-[10px] transform transition-transform ${expandedPrograms[programId] ? 'rotate-180' : ''}`}>▼</span>
+                      <div className={`transform transition-transform ${expandedPrograms[programId] ? 'rotate-180' : ''}`}>
+                        <ChevronDown size={14} />
+                      </div>
                     </button>
                     {expandedPrograms[programId] && (
                       <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

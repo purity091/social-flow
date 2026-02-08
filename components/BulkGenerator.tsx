@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Platform, Post } from '../types';
+import { Zap } from 'lucide-react';
 
 interface BulkGeneratorProps {
   onPostsGenerated: (posts: Post[]) => void;
@@ -62,7 +63,10 @@ const BulkGenerator: React.FC<BulkGeneratorProps> = ({ onPostsGenerated }) => {
   return (
     <div className="bg-white rounded-3xl border border-indigo-100 p-8 shadow-sm">
       <div className="flex items-center gap-4 mb-8">
-        <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-2xl">⚡</div>
+
+        <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-600">
+          <Zap size={24} />
+        </div>
         <div>
           <h2 className="text-2xl font-bold text-gray-800">مولد البرامج الهيكلية</h2>
           <p className="text-gray-500 text-sm">أنشئ خطة محتوى زمنية (1-180 منشور) لتوزيعها على الجدول</p>

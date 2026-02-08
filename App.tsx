@@ -11,6 +11,15 @@ import LoginPage from './components/LoginPage';
 import { Post, Campaign, Platform, MediaItem, MediaFolder } from './types';
 import * as api from './services/api';
 import { useAuth } from './contexts/AuthContext';
+import { 
+  Zap, 
+  Download, 
+  Upload, 
+  Plus, 
+  LogOut, 
+  ClipboardList, 
+  Copy 
+} from 'lucide-react';
 
 const App: React.FC = () => {
   const { user, loading: authLoading, signOut, isConfigured } = useAuth();
@@ -451,7 +460,7 @@ const App: React.FC = () => {
                   className="p-2 text-gray-400 hover:text-red-500 transition-colors"
                   title="تسجيل الخروج"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                  <LogOut size={18} />
                 </button>
               </div>
             )}
@@ -463,7 +472,7 @@ const App: React.FC = () => {
                 className={`px-5 py-2.5 rounded-xl font-bold shadow-lg transition-all flex items-center gap-2 transform active:scale-95 ${showBulkGen ? 'bg-rose-500 text-white shadow-rose-200' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
                   }`}
               >
-                <span>{showBulkGen ? 'إلغاء' : '⚡ مولد البرامج'}</span>
+                <span>{showBulkGen ? 'إلغاء' : <><Zap size={18} /> <span>مولد البرامج</span></>}</span>
               </button>
             )}
 
@@ -473,13 +482,15 @@ const App: React.FC = () => {
                   onClick={handleExportPosts}
                   className="px-4 py-2.5 rounded-xl font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-all flex items-center gap-2"
                 >
-                  <span>📥</span> تصدير
+                  <Download size={18} />
+                  <span>تصدير</span>
                 </button>
                 <button
                   onClick={() => setShowImportModal(true)}
                   className="px-4 py-2.5 rounded-xl font-bold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-all flex items-center gap-2"
                 >
-                  <span>📤</span> استيراد JSON
+                  <Upload size={18} />
+                  <span>استيراد JSON</span>
                 </button>
               </>
             )}
@@ -488,7 +499,8 @@ const App: React.FC = () => {
               onClick={() => openNewPostModal()}
               className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
             >
-              + منشور جديد
+              <Plus size={18} />
+              <span>منشور جديد</span>
             </button>
           </div>
         </header>
@@ -513,13 +525,17 @@ const App: React.FC = () => {
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl p-6 max-h-[90vh] overflow-y-auto">
             <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <span>📤</span> استيراد منشورات من JSON
+              <Upload size={24} className="text-gray-800" />
+              <span>استيراد منشورات من JSON</span>
             </h3>
 
             {/* Example Template */}
             <div className="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-200">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-bold text-gray-600">📋 نموذج JSON (انسخ وعدّل):</span>
+                <span className="text-sm font-bold text-gray-600 flex items-center gap-2">
+                  <ClipboardList size={16} />
+                  نموذج JSON (انسخ وعدّل):
+                </span>
                 <button
                   onClick={() => {
                     const template = `[
@@ -554,7 +570,8 @@ const App: React.FC = () => {
                   }}
                   className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg hover:bg-indigo-200 transition-colors"
                 >
-                  📋 نسخ النموذج
+                  <Copy size={12} className="mr-1" />
+                  نسخ النموذج
                 </button>
               </div>
               <div className="text-xs text-gray-500 space-y-1">
@@ -591,7 +608,10 @@ const App: React.FC = () => {
                     جاري الاستيراد...
                   </>
                 ) : (
-                  <>📤 استيراد المنشورات</>
+                  <>
+                    <Upload size={18} />
+                    استيراد المنشورات
+                  </>
                 )}
               </button>
             </div>

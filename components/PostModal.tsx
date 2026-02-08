@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Post, Platform, MediaItem } from '../types';
 import { getPlatformConfig } from '../constants';
 import MediaLibrary from './MediaLibrary';
+import { Camera } from 'lucide-react';
 
 interface PostModalProps {
   isOpen: boolean;
@@ -183,7 +184,9 @@ const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, onSave, post, in
                       </div>
                     ) : (
                       <div className="flex flex-col items-center justify-center text-gray-400 cursor-pointer" onClick={() => setShowMediaLibrary(true)}>
-                        <span className="text-2xl mb-1">📷</span>
+                        <div className="mb-1 text-gray-400">
+                          <Camera size={32} />
+                        </div>
                         <span className="text-xs">اضغط هنا للاختيار</span>
                       </div>
                     )}

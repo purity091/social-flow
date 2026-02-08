@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as api from '../services/api';
 import { StudioLink } from '../services/api';
+import { Link, Palette } from 'lucide-react';
 
 const DesignStudios: React.FC = () => {
     const [studios, setStudios] = useState<StudioLink[]>([]);
@@ -120,7 +121,7 @@ const DesignStudios: React.FC = () => {
             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gradient-to-l from-pink-50 to-purple-50">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
-                        <span className="text-3xl">🔗</span>
+                        <Link size={28} />
                         <span>روابط استديوهات التصميم</span>
                     </h2>
                     <p className="text-gray-500 text-sm mt-1">احفظ روابط مواقع التصميم المفضلة لديك</p>
@@ -170,7 +171,7 @@ const DesignStudios: React.FC = () => {
                                                 </div>
                                             ) : (
                                                 <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 text-2xl">
-                                                    🎨
+                                                    <Palette size={24} className="text-gray-400" />
                                                 </div>
                                             )}
                                         </td>
@@ -276,7 +277,7 @@ const DesignStudios: React.FC = () => {
                     </div>
                 ) : (
                     <div className="text-center py-16 text-gray-400">
-                        <span className="text-6xl mb-4 block">🔗</span>
+                        <div className="flex justify-center mb-4"><Link size={64} /></div>
                         <p className="text-lg mb-2">لا توجد روابط بعد</p>
                         <p className="text-sm">اضغط على "إضافة رابط" لحفظ استديوهات التصميم المفضلة</p>
                     </div>
@@ -311,7 +312,7 @@ const DesignStudios: React.FC = () => {
                 <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
                     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
                         <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                            <span>🔗</span> إضافة رابط جديد
+                            <Link size={24} /> <span>إضافة رابط جديد</span>
                         </h3>
 
                         <div className="space-y-4">
@@ -412,7 +413,7 @@ const DesignStudios: React.FC = () => {
                         <div className="p-6 border-b border-gray-100 bg-gradient-to-l from-blue-50 to-purple-50">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3">
-                                    <span className="text-2xl">🎨</span>
+                                    <Palette size={24} />
                                     تفاصيل الاستديو
                                 </h3>
                                 <button
@@ -436,8 +437,8 @@ const DesignStudios: React.FC = () => {
                                         <img src={viewingStudio.imageUrl} alt={viewingStudio.name} className="w-full h-full object-cover" />
                                     </div>
                                 ) : (
-                                    <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-4xl flex-shrink-0 shadow-md">
-                                        🎨
+                                    <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-purple-400 flex-shrink-0 shadow-md">
+                                        <Palette size={40} />
                                     </div>
                                 )}
                                 <div className="flex-1">

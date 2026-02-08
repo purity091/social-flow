@@ -1,6 +1,22 @@
 
 import React, { useRef, useState, useCallback } from 'react';
 import { MediaItem, MediaFolder } from '../types';
+import {
+    Upload,
+    Image,
+    Folder,
+    FolderOpen,
+    Edit2,
+    Trash2,
+    Eye,
+    Home,
+    Check,
+    X,
+    ArrowUp,
+    Plus,
+    Grid,
+    List
+} from 'lucide-react';
 
 interface UploadingFile {
     id: string;
@@ -226,18 +242,10 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
     };
 
     // Grid View Icon
-    const GridIcon = () => (
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
-        </svg>
-    );
+    const GridIcon = () => <Grid size={18} />;
 
     // List View Icon
-    const ListIcon = () => (
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
-        </svg>
-    );
+    const ListIcon = () => <List size={18} />;
 
     return (
         <div
@@ -251,7 +259,9 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
             {isDragOver && (
                 <div className="absolute inset-0 bg-indigo-500/20 backdrop-blur-sm z-50 flex items-center justify-center border-4 border-dashed border-indigo-500 rounded-3xl">
                     <div className="text-center">
-                        <div className="text-6xl mb-4 animate-bounce">📥</div>
+                        <div className="mb-4 animate-bounce text-indigo-500">
+                            <Upload size={64} />
+                        </div>
                         <p className="text-2xl font-bold text-indigo-700">اسحب الملفات هنا للرفع</p>
                         <p className="text-indigo-600 mt-2">يمكنك رفع عدة صور في نفس الوقت</p>
                     </div>
@@ -263,7 +273,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                 <div className="flex justify-between items-center mb-4">
                     <div>
                         <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                            <span>🖼️</span>
+                            <Image size={24} className="text-gray-800" />
                             <span>مكتبة الوسائط</span>
                         </h2>
                         <p className="text-gray-500 text-sm mt-1">اسحب وأفلت الصور في أي مكان أو استخدم زر الرفع</p>
@@ -290,14 +300,14 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                             onClick={() => setShowNewFolderModal(true)}
                             className="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-lg shadow-emerald-100 transition-all flex items-center gap-2"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" /><line x1="12" y1="11" x2="12" y2="17" /><line x1="9" y1="14" x2="15" y2="14" /></svg>
+                            <Plus size={20} />
                             <span>مجلد جديد</span>
                         </button>
                         <button
                             onClick={() => fileInputRef.current?.click()}
                             className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 transition-all flex items-center gap-2"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+                            <Upload size={20} />
                             <span>رفع صور جديدة</span>
                         </button>
                         <input
@@ -320,7 +330,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                         onDragLeave={handleDragLeave}
                         onDrop={(e) => handleDrop(e, null)}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+                        <Home size={16} />
                         <span>الرئيسية</span>
                     </button>
                     {breadcrumbs.map((folder, index) => (
@@ -333,7 +343,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                                 onDragLeave={handleDragLeave}
                                 onDrop={(e) => handleDrop(e, folder.id)}
                             >
-                                <span>📁</span>
+                                <Folder size={16} className="text-indigo-500" />
                                 <span>{folder.name}</span>
                             </button>
                         </React.Fragment>
@@ -346,7 +356,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                 <div className="border-b border-gray-100 bg-white p-4">
                     <div className="flex items-center justify-between mb-3">
                         <h3 className="font-bold text-gray-700 flex items-center gap-2">
-                            <span className="animate-pulse">⬆️</span>
+                            <ArrowUp className="animate-bounce text-indigo-500" size={18} />
                             جاري الرفع ({uploadingFiles.length} ملف)
                         </h3>
                         <button onClick={() => setUploadingFiles([])} className="text-xs text-gray-400 hover:text-gray-600">
@@ -366,12 +376,12 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    {file.status === 'success' && <span className="text-green-500 text-lg">✓</span>}
-                                    {file.status === 'error' && <span className="text-red-500 text-lg">✕</span>}
+                                    {file.status === 'success' && <Check className="text-green-500" size={18} />}
+                                    {file.status === 'error' && <X className="text-red-500" size={18} />}
                                     {(file.status === 'pending' || file.status === 'uploading') && (
                                         <span className="text-indigo-500 text-sm font-medium">{file.progress}%</span>
                                     )}
-                                    <button onClick={() => removeUploadingFile(file.id)} className="p-1 text-gray-400 hover:text-gray-600">✕</button>
+                                    <button onClick={() => removeUploadingFile(file.id)} className="p-1 text-gray-400 hover:text-gray-600"><X size={14} /></button>
                                 </div>
                             </div>
                         ))}
@@ -386,7 +396,9 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                         className="h-full flex flex-col items-center justify-center text-gray-400 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/50 transition-all"
                         onClick={() => fileInputRef.current?.click()}
                     >
-                        <div className="text-6xl mb-4 opacity-50">📂</div>
+                        <div className="mb-4 opacity-50">
+                            <FolderOpen size={64} className="text-gray-400" />
+                        </div>
                         <p className="text-lg font-medium">المجلد فارغ</p>
                         <p className="text-sm mt-2">اسحب الصور هنا أو انقر للرفع</p>
                     </div>
@@ -396,7 +408,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                         {currentFolders.length > 0 && (
                             <div>
                                 <h3 className="text-sm font-semibold text-gray-500 mb-3 flex items-center gap-2">
-                                    <span>📁</span>
+                                    <Folder size={18} />
                                     <span>المجلدات ({currentFolders.length})</span>
                                 </h3>
                                 {viewMode === 'grid' ? (
@@ -412,15 +424,17 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                                                     onDragLeave={handleDragLeave}
                                                     onDrop={(e) => { e.stopPropagation(); handleDrop(e, folder.id); }}
                                                 >
-                                                    <div className="text-4xl mb-2 text-center">📁</div>
+                                                    <div className="mb-2 flex justify-center text-indigo-200">
+                                                        <Folder size={48} fill="currentColor" className="text-indigo-50" />
+                                                    </div>
                                                     <p className="text-sm font-medium text-gray-700 text-center truncate" title={folder.name}>{folder.name}</p>
                                                     <div className="text-xs text-gray-400 text-center mt-1 space-y-0.5">
                                                         {contents.folders > 0 && <p>{contents.folders} مجلد</p>}
                                                         <p>{contents.files} ملف</p>
                                                     </div>
                                                     <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                                                        <button onClick={(e) => { e.stopPropagation(); setEditingFolder(folder); setNewFolderName(folder.name); }} className="p-1.5 bg-blue-500 hover:bg-blue-600 rounded-lg text-white text-xs" title="تعديل">✏️</button>
-                                                        <button onClick={(e) => { e.stopPropagation(); onDeleteFolder(folder.id); }} className="p-1.5 bg-red-500 hover:bg-red-600 rounded-lg text-white text-xs" title="حذف">🗑️</button>
+                                                        <button onClick={(e) => { e.stopPropagation(); setEditingFolder(folder); setNewFolderName(folder.name); }} className="p-1.5 bg-blue-500 hover:bg-blue-600 rounded-lg text-white" title="تعديل"><Edit2 size={12} /></button>
+                                                        <button onClick={(e) => { e.stopPropagation(); onDeleteFolder(folder.id); }} className="p-1.5 bg-red-500 hover:bg-red-600 rounded-lg text-white" title="حذف"><Trash2 size={12} /></button>
                                                     </div>
                                                 </div>
                                             );
@@ -440,7 +454,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                                                     onDragLeave={handleDragLeave}
                                                     onDrop={(e) => { e.stopPropagation(); handleDrop(e, folder.id); }}
                                                 >
-                                                    <span className="text-3xl">📁</span>
+                                                    <Folder size={24} className="text-indigo-400" />
                                                     <div className="flex-1 min-w-0">
                                                         <p className="font-medium text-gray-800">{folder.name}</p>
                                                         <p className="text-xs text-gray-400 mt-0.5">
@@ -448,8 +462,8 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                                                         </p>
                                                     </div>
                                                     <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                                                        <button onClick={(e) => { e.stopPropagation(); setEditingFolder(folder); setNewFolderName(folder.name); }} className="p-2 bg-blue-100 hover:bg-blue-200 rounded-lg text-blue-600" title="تعديل">✏️</button>
-                                                        <button onClick={(e) => { e.stopPropagation(); onDeleteFolder(folder.id); }} className="p-2 bg-red-100 hover:bg-red-200 rounded-lg text-red-600" title="حذف">🗑️</button>
+                                                        <button onClick={(e) => { e.stopPropagation(); setEditingFolder(folder); setNewFolderName(folder.name); }} className="p-2 bg-blue-100 hover:bg-blue-200 rounded-lg text-blue-600" title="تعديل"><Edit2 size={16} /></button>
+                                                        <button onClick={(e) => { e.stopPropagation(); onDeleteFolder(folder.id); }} className="p-2 bg-red-100 hover:bg-red-200 rounded-lg text-red-600" title="حذف"><Trash2 size={16} /></button>
                                                     </div>
                                                 </div>
                                             );
@@ -463,7 +477,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                         {currentItems.length > 0 && (
                             <div>
                                 <h3 className="text-sm font-semibold text-gray-500 mb-3 flex items-center gap-2">
-                                    <span>🖼️</span>
+                                    <Image size={18} />
                                     <span>الصور ({currentItems.length})</span>
                                 </h3>
                                 {viewMode === 'grid' ? (
@@ -525,9 +539,9 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                                                 </div>
                                                 {!isSelectMode && (
                                                     <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                                                        <button onClick={(e) => { e.stopPropagation(); setMovingItem(item); setShowMoveModal(true); }} className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600" title="نقل">📁</button>
-                                                        <button onClick={(e) => { e.stopPropagation(); window.open(item.url, '_blank'); }} className="p-2 bg-blue-100 hover:bg-blue-200 rounded-lg text-blue-600" title="عرض">👁️</button>
-                                                        <button onClick={(e) => { e.stopPropagation(); onDelete(item.id); }} className="p-2 bg-red-100 hover:bg-red-200 rounded-lg text-red-600" title="حذف">🗑️</button>
+                                                        <button onClick={(e) => { e.stopPropagation(); setMovingItem(item); setShowMoveModal(true); }} className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600" title="نقل"><Folder size={16} /></button>
+                                                        <button onClick={(e) => { e.stopPropagation(); window.open(item.url, '_blank'); }} className="p-2 bg-blue-100 hover:bg-blue-200 rounded-lg text-blue-600" title="عرض"><Eye size={16} /></button>
+                                                        <button onClick={(e) => { e.stopPropagation(); onDelete(item.id); }} className="p-2 bg-red-100 hover:bg-red-200 rounded-lg text-red-600" title="حذف"><Trash2 size={16} /></button>
                                                     </div>
                                                 )}
                                             </div>
@@ -545,7 +559,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowNewFolderModal(false)}>
                     <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
                         <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                            <span>📁</span><span>إنشاء مجلد جديد</span>
+                            <Folder size={20} className="text-gray-800" /><span>إنشاء مجلد جديد</span>
                         </h3>
                         <input
                             type="text"
@@ -568,7 +582,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => { setEditingFolder(null); setNewFolderName(''); }}>
                     <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
                         <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                            <span>✏️</span><span>إعادة تسمية المجلد</span>
+                            <Edit2 size={20} className="text-gray-800" /><span>إعادة تسمية المجلد</span>
                         </h3>
                         <input
                             type="text"
@@ -591,7 +605,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => { setShowMoveModal(false); setMovingItem(null); }}>
                     <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[70vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
                         <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                            <span>📁</span><span>نقل إلى مجلد</span>
+                            <Folder size={20} className="text-gray-800" /><span>نقل إلى مجلد</span>
                         </h3>
                         <p className="text-sm text-gray-500 mb-4">نقل: <strong>{movingItem.name}</strong></p>
                         <div className="flex-1 overflow-y-auto space-y-2">
@@ -599,7 +613,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                                 onClick={() => { onMoveItem(movingItem, null); setShowMoveModal(false); setMovingItem(null); }}
                                 className={`w-full text-right px-4 py-3 rounded-xl border transition-all flex items-center gap-3 ${movingItem.folderId === null ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'}`}
                             >
-                                <span className="text-xl">🏠</span>
+                                <Home size={20} />
                                 <span>الرئيسية (بدون مجلد)</span>
                             </button>
                             {mediaFolders.map(folder => (
@@ -608,7 +622,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                                     onClick={() => { onMoveItem(movingItem, folder.id); setShowMoveModal(false); setMovingItem(null); }}
                                     className={`w-full text-right px-4 py-3 rounded-xl border transition-all flex items-center gap-3 ${movingItem.folderId === folder.id ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'}`}
                                 >
-                                    <span className="text-xl">📁</span>
+                                    <Folder size={20} />
                                     <span>{folder.name}</span>
                                 </button>
                             ))}
