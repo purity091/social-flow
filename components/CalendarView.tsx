@@ -25,7 +25,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ posts, onAddPost, onEditPos
 
   // Padding for start of month
   for (let i = 0; i < startDay; i++) {
-    days.push(<div key={`empty-${i}`} className="min-h-[140px] bg-gray-50/50 border-b border-l border-gray-100"></div>);
+    days.push(<div key={`empty-${i}`} className="min-h-[120px] bg-gray-50/50 border-b border-l border-gray-100"></div>);
   }
 
   // Days with content
@@ -43,7 +43,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ posts, onAddPost, onEditPos
             onAddPost(date);
           }
         }}
-        className={`min-h-[140px] p-2 border-b border-l border-gray-100 bg-white transition-all relative group hover:shadow-[inset_0_0_20px_rgba(0,0,0,0.02)]
+        className={`min-h-[120px] p-2 border-b border-l border-gray-100 bg-white transition-all relative group hover:shadow-[inset_0_0_20px_rgba(0,0,0,0.02)] flex flex-col
             ${isToday ? 'bg-indigo-50/30' : ''}`}
       >
         <div className="flex justify-between items-start mb-2">
@@ -56,7 +56,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ posts, onAddPost, onEditPos
           </button>
         </div>
 
-        <div className="space-y-1.5 overflow-y-auto max-h-[100px] custom-scrollbar pr-0.5">
+        <div className="space-y-1.5 flex-1 pr-0.5">
           {dayPosts.map(post => (
             <div
               key={post.id}
