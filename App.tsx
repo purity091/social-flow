@@ -8,7 +8,7 @@ import PostModal from './components/PostModal';
 import MediaLibrary from './components/MediaLibrary';
 import DesignStudios from './components/DesignStudios';
 import LoginPage from './components/LoginPage';
-import { Post, Campaign, Platform, MediaItem } from './types';
+import { Post, Campaign, Platform, MediaItem, MediaFolder } from './types';
 import * as api from './services/api';
 import { useAuth } from './contexts/AuthContext';
 
@@ -19,6 +19,7 @@ const App: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+  const [mediaFolders, setMediaFolders] = useState<MediaFolder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
 
@@ -43,14 +44,16 @@ const App: React.FC = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [fetchedPosts, fetchedCampaigns, fetchedMedia] = await Promise.all([
+        const [fetchedPosts, fetchedCampaigns, fetchedMedia, fetchedFolders] = await Promise.all([
           api.getPosts(),
           api.getCampaigns(),
-          api.getMediaItems()
+          api.getMediaItems(),
+          api.getMediaFolders()
         ]);
         setPosts(fetchedPosts);
         setCampaigns(fetchedCampaigns);
         setMediaItems(fetchedMedia);
+        setMediaFolders(fetchedFolders);
       } catch (error) {
         console.error("Failed to fetch data:", error);
       } finally {
@@ -180,17 +183,64 @@ const App: React.FC = () => {
     }
   };
 
-  const handleUploadMedia = async (files: FileList) => {
-    const file = files[0]; // Simple single file upload for now or loop for multiple
-    if (!file) return;
+  const handleUploadMedia = async (files: FileList, folderId?: string | null) => {
+    // Upload all files, not just the first one
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (!file) continue;
 
+      try {
+        // Optimistic UI could be added here
+        const savedItem = await api.uploadMediaItem(file, folderId);
+        setMediaItems(prev => [savedItem, ...prev]);
+      } catch (e) {
+        console.error("Upload failed", e);
+        alert(`فشل رفع الملف: ${file.name}. تأكد من إعداد Supabase Storage.`);
+      }
+    }
+  };
+
+  const handleCreateFolder = async (name: string, parentId?: string | null) => {
     try {
-      // Optimistic UI could be added here
-      const savedItem = await api.uploadMediaItem(file);
-      setMediaItems(prev => [savedItem, ...prev]);
+      const newFolder = await api.createMediaFolder({ name, parentId });
+      setMediaFolders(prev => [newFolder, ...prev]);
     } catch (e) {
-      console.error("Upload failed", e);
-      alert('فشل رفع الملف. تأكد من إعداد Supabase Storage.');
+      console.error("Failed to create folder", e);
+      alert('فشل إنشاء المجلد');
+    }
+  };
+
+  const handleDeleteFolder = async (id: string) => {
+    if (window.confirm('حذف هذا المجلد؟ سيتم نقل الملفات الموجودة فيه إلى الرئيسية.')) {
+      try {
+        await api.deleteMediaFolder(id);
+        setMediaFolders(prev => prev.filter(f => f.id !== id));
+        // Update media items that were in this folder
+        setMediaItems(prev => prev.map(m => m.folderId === id ? { ...m, folderId: null } : m));
+      } catch (e) {
+        console.error("Failed to delete folder", e);
+        alert('فشل حذف المجلد');
+      }
+    }
+  };
+
+  const handleRenameFolder = async (folder: MediaFolder) => {
+    try {
+      const updated = await api.updateMediaFolder(folder);
+      setMediaFolders(prev => prev.map(f => f.id === folder.id ? updated : f));
+    } catch (e) {
+      console.error("Failed to rename folder", e);
+      alert('فشل إعادة تسمية المجلد');
+    }
+  };
+
+  const handleMoveItem = async (item: MediaItem, folderId: string | null) => {
+    try {
+      const updated = await api.updateMediaItem({ ...item, folderId });
+      setMediaItems(prev => prev.map(m => m.id === item.id ? updated : m));
+    } catch (e) {
+      console.error("Failed to move item", e);
+      alert('فشل نقل الملف');
     }
   };
 
@@ -343,8 +393,13 @@ const App: React.FC = () => {
         return (
           <MediaLibrary
             mediaItems={mediaItems}
+            mediaFolders={mediaFolders}
             onUpload={handleUploadMedia}
             onDelete={handleDeleteMedia}
+            onCreateFolder={handleCreateFolder}
+            onDeleteFolder={handleDeleteFolder}
+            onRenameFolder={handleRenameFolder}
+            onMoveItem={handleMoveItem}
           />
         );
       case 'studios':

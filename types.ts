@@ -43,10 +43,21 @@ export interface AIAdvice {
   contentIdeas: string[];
 }
 
+export interface MediaFolder {
+  id: string;
+  name: string;
+  parentId?: string | null;
+  date: Date;
+}
+
 export interface MediaItem {
   id: string;
   url: string;
   name: string;
   type: string;
   date: Date;
+  folderId?: string | null;
+  width?: number;
+  height?: number;
+  size?: number; // File size in bytes
 }

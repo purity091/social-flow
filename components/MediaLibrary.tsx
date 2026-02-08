@@ -1,101 +1,430 @@
 
-import React, { useRef } from 'react';
-import { MediaItem } from '../types';
+import React, { useRef, useState, useEffect } from 'react';
+import { MediaItem, MediaFolder } from '../types';
 
 interface MediaLibraryProps {
     mediaItems: MediaItem[];
-    onUpload: (files: FileList) => void;
+    mediaFolders: MediaFolder[];
+    onUpload: (files: FileList, folderId?: string | null) => void;
     onDelete: (id: string) => void;
     onSelect?: (item: MediaItem) => void;
     isSelectMode?: boolean;
+    onCreateFolder: (name: string, parentId?: string | null) => void;
+    onDeleteFolder: (id: string) => void;
+    onRenameFolder: (folder: MediaFolder) => void;
+    onMoveItem: (item: MediaItem, folderId: string | null) => void;
 }
 
-const MediaLibrary: React.FC<MediaLibraryProps> = ({ mediaItems, onUpload, onDelete, onSelect, isSelectMode = false }) => {
+const MediaLibrary: React.FC<MediaLibraryProps> = ({
+    mediaItems,
+    mediaFolders,
+    onUpload,
+    onDelete,
+    onSelect,
+    isSelectMode = false,
+    onCreateFolder,
+    onDeleteFolder,
+    onRenameFolder,
+    onMoveItem
+}) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+    const [showNewFolderModal, setShowNewFolderModal] = useState(false);
+    const [newFolderName, setNewFolderName] = useState('');
+    const [editingFolder, setEditingFolder] = useState<MediaFolder | null>(null);
+    const [showMoveModal, setShowMoveModal] = useState(false);
+    const [movingItem, setMovingItem] = useState<MediaItem | null>(null);
+    const [dragOverFolderId, setDragOverFolderId] = useState<string | null>(null);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
-            onUpload(e.target.files);
+            onUpload(e.target.files, currentFolderId);
         }
+    };
+
+    const handleCreateFolder = () => {
+        if (newFolderName.trim()) {
+            onCreateFolder(newFolderName.trim(), currentFolderId);
+            setNewFolderName('');
+            setShowNewFolderModal(false);
+        }
+    };
+
+    const handleRenameFolder = () => {
+        if (editingFolder && newFolderName.trim()) {
+            onRenameFolder({ ...editingFolder, name: newFolderName.trim() });
+            setEditingFolder(null);
+            setNewFolderName('');
+        }
+    };
+
+    const formatFileSize = (bytes?: number): string => {
+        if (!bytes) return 'غير معروف';
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+        return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+    };
+
+    // Get current folder's children folders
+    const currentFolders = mediaFolders.filter(f => f.parentId === currentFolderId);
+
+    // Get current folder's media items
+    const currentItems = mediaItems.filter(m => m.folderId === currentFolderId);
+
+    // Get parent folder for breadcrumb
+    const currentFolder = currentFolderId ? mediaFolders.find(f => f.id === currentFolderId) : null;
+
+    // Build breadcrumb path
+    const getBreadcrumbPath = (): MediaFolder[] => {
+        const path: MediaFolder[] = [];
+        let folder = currentFolder;
+        while (folder) {
+            path.unshift(folder);
+            folder = folder.parentId ? mediaFolders.find(f => f.id === folder!.parentId) : undefined;
+        }
+        return path;
+    };
+
+    const breadcrumbs = getBreadcrumbPath();
+
+    // Drag and drop handlers
+    const handleDragStart = (e: React.DragEvent, item: MediaItem) => {
+        e.dataTransfer.setData('mediaItemId', item.id);
+    };
+
+    const handleDragOver = (e: React.DragEvent, folderId: string | null) => {
+        e.preventDefault();
+        setDragOverFolderId(folderId);
+    };
+
+    const handleDragLeave = () => {
+        setDragOverFolderId(null);
+    };
+
+    const handleDrop = (e: React.DragEvent, folderId: string | null) => {
+        e.preventDefault();
+        const itemId = e.dataTransfer.getData('mediaItemId');
+        if (itemId) {
+            const item = mediaItems.find(m => m.id === itemId);
+            if (item && item.folderId !== folderId) {
+                onMoveItem(item, folderId);
+            }
+        }
+        setDragOverFolderId(null);
     };
 
     return (
         <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-[calc(100vh-140px)]">
             {/* Header */}
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                        <span>🖼️</span>
-                        <span>مكتبة الوسائط</span>
-                    </h2>
-                    <p className="text-gray-500 text-sm mt-1">إدارة جميع الصور والملفات الخاصة بحملاتك</p>
+            <div className="p-6 border-b border-gray-100 bg-gray-50/50">
+                <div className="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                            <span>🖼️</span>
+                            <span>مكتبة الوسائط</span>
+                        </h2>
+                        <p className="text-gray-500 text-sm mt-1">إدارة جميع الصور والملفات الخاصة بحملاتك</p>
+                    </div>
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => setShowNewFolderModal(true)}
+                            className="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-lg shadow-emerald-100 transition-all flex items-center gap-2"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" /><line x1="12" y1="11" x2="12" y2="17" /><line x1="9" y1="14" x2="15" y2="14" /></svg>
+                            <span>مجلد جديد</span>
+                        </button>
+                        <button
+                            onClick={() => fileInputRef.current?.click()}
+                            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 transition-all flex items-center gap-2"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+                            <span>رفع صور جديدة</span>
+                        </button>
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            className="hidden"
+                            multiple
+                            accept="image/*"
+                        />
+                    </div>
                 </div>
-                <div>
+
+                {/* Breadcrumbs */}
+                <div className="flex items-center gap-2 text-sm">
                     <button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 transition-all flex items-center gap-2"
+                        onClick={() => setCurrentFolderId(null)}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all ${currentFolderId === null
+                                ? 'bg-indigo-100 text-indigo-700'
+                                : 'text-gray-600 hover:bg-gray-100'
+                            }`}
+                        onDragOver={(e) => handleDragOver(e, null)}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, null)}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
-                        <span>رفع صور جديدة</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+                        <span>الرئيسية</span>
                     </button>
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                        className="hidden"
-                        multiple
-                        accept="image/*"
-                    />
+                    {breadcrumbs.map((folder, index) => (
+                        <React.Fragment key={folder.id}>
+                            <span className="text-gray-400">›</span>
+                            <button
+                                onClick={() => setCurrentFolderId(folder.id)}
+                                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all ${index === breadcrumbs.length - 1
+                                        ? 'bg-indigo-100 text-indigo-700'
+                                        : 'text-gray-600 hover:bg-gray-100'
+                                    }`}
+                                onDragOver={(e) => handleDragOver(e, folder.id)}
+                                onDragLeave={handleDragLeave}
+                                onDrop={(e) => handleDrop(e, folder.id)}
+                            >
+                                <span>📁</span>
+                                <span>{folder.name}</span>
+                            </button>
+                        </React.Fragment>
+                    ))}
                 </div>
             </div>
 
-            {/* Grid */}
+            {/* Content Grid */}
             <div className="flex-1 overflow-y-auto p-6 bg-slate-50">
-                {mediaItems.length === 0 ? (
+                {currentFolders.length === 0 && currentItems.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-gray-400 border-2 border-dashed border-gray-200 rounded-2xl">
                         <div className="text-4xl mb-4 opacity-50">📂</div>
-                        <p>المكتبة فارغة، قم برفع بعض الصور للبدء</p>
+                        <p>المجلد فارغ، قم برفع بعض الصور أو إنشاء مجلد جديد</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                        {mediaItems.map(item => (
-                            <div
-                                key={item.id}
-                                className={`group relative aspect-square bg-white rounded-xl overflow-hidden border transition-all cursor-pointer ${isSelectMode ? 'hover:ring-4 hover:ring-indigo-400 hover:scale-95' : 'hover:shadow-lg'
-                                    }`}
-                                onClick={() => isSelectMode && onSelect?.(item)}
-                            >
-                                <img src={item.url} alt={item.name} className="w-full h-full object-cover" />
+                    <div className="space-y-6">
+                        {/* Folders Grid */}
+                        {currentFolders.length > 0 && (
+                            <div>
+                                <h3 className="text-sm font-semibold text-gray-500 mb-3 flex items-center gap-2">
+                                    <span>📁</span>
+                                    <span>المجلدات ({currentFolders.length})</span>
+                                </h3>
+                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                    {currentFolders.map(folder => (
+                                        <div
+                                            key={folder.id}
+                                            className={`group relative bg-white rounded-xl border-2 p-4 cursor-pointer transition-all hover:shadow-lg hover:border-indigo-300 ${dragOverFolderId === folder.id ? 'border-indigo-500 bg-indigo-50' : 'border-gray-100'
+                                                }`}
+                                            onClick={() => setCurrentFolderId(folder.id)}
+                                            onDragOver={(e) => handleDragOver(e, folder.id)}
+                                            onDragLeave={handleDragLeave}
+                                            onDrop={(e) => { e.stopPropagation(); handleDrop(e, folder.id); }}
+                                        >
+                                            <div className="text-4xl mb-2 text-center">📁</div>
+                                            <p className="text-sm font-medium text-gray-700 text-center truncate">{folder.name}</p>
+                                            <p className="text-xs text-gray-400 text-center mt-1">
+                                                {mediaItems.filter(m => m.folderId === folder.id).length} ملف
+                                            </p>
 
-                                {/* Overlay with details */}
-                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3 text-white">
-                                    <p className="text-xs font-medium truncate mb-1">{item.name}</p>
-                                    <p className="text-[10px] opacity-70 mb-2">{item.date.toLocaleDateString()}</p>
-
-                                    {!isSelectMode && (
-                                        <div className="flex justify-end gap-2">
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
-                                                className="p-1.5 bg-red-500 hover:bg-red-600 rounded-lg text-white transition-colors"
-                                                title="حذف"
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
-                                            </button>
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); window.open(item.url, '_blank'); }}
-                                                className="p-1.5 bg-white/20 hover:bg-white/40 rounded-lg text-white transition-colors"
-                                                title="عراض كامل"
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
-                                            </button>
+                                            {/* Folder Actions */}
+                                            <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); setEditingFolder(folder); setNewFolderName(folder.name); }}
+                                                    className="p-1.5 bg-blue-500 hover:bg-blue-600 rounded-lg text-white text-xs"
+                                                    title="تعديل"
+                                                >
+                                                    ✏️
+                                                </button>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); onDeleteFolder(folder.id); }}
+                                                    className="p-1.5 bg-red-500 hover:bg-red-600 rounded-lg text-white text-xs"
+                                                    title="حذف"
+                                                >
+                                                    🗑️
+                                                </button>
+                                            </div>
                                         </div>
-                                    )}
+                                    ))}
                                 </div>
                             </div>
-                        ))}
+                        )}
+
+                        {/* Images Grid */}
+                        {currentItems.length > 0 && (
+                            <div>
+                                <h3 className="text-sm font-semibold text-gray-500 mb-3 flex items-center gap-2">
+                                    <span>🖼️</span>
+                                    <span>الصور ({currentItems.length})</span>
+                                </h3>
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                                    {currentItems.map(item => (
+                                        <div
+                                            key={item.id}
+                                            draggable={!isSelectMode}
+                                            onDragStart={(e) => handleDragStart(e, item)}
+                                            className={`group relative aspect-square bg-white rounded-xl overflow-hidden border transition-all cursor-pointer ${isSelectMode ? 'hover:ring-4 hover:ring-indigo-400 hover:scale-95' : 'hover:shadow-lg'
+                                                }`}
+                                            onClick={() => isSelectMode && onSelect?.(item)}
+                                        >
+                                            <img src={item.url} alt={item.name} className="w-full h-full object-cover" />
+
+                                            {/* Size Badge - Always visible */}
+                                            <div className="absolute top-2 right-2 bg-black/70 text-white text-[10px] px-2 py-1 rounded-lg flex flex-col items-end">
+                                                {item.width && item.height && (
+                                                    <span className="font-bold">{item.width}×{item.height}</span>
+                                                )}
+                                                <span className="opacity-80">{formatFileSize(item.size)}</span>
+                                            </div>
+
+                                            {/* Overlay with details */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3 text-white">
+                                                <p className="text-xs font-medium truncate mb-1">{item.name}</p>
+                                                <p className="text-[10px] opacity-70 mb-2">{item.date.toLocaleDateString('ar-SA')}</p>
+
+                                                {!isSelectMode && (
+                                                    <div className="flex justify-between items-center">
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); setMovingItem(item); setShowMoveModal(true); }}
+                                                            className="p-1.5 bg-white/20 hover:bg-white/40 rounded-lg text-white transition-colors"
+                                                            title="نقل إلى مجلد"
+                                                        >
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" /></svg>
+                                                        </button>
+                                                        <div className="flex gap-2">
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
+                                                                className="p-1.5 bg-red-500 hover:bg-red-600 rounded-lg text-white transition-colors"
+                                                                title="حذف"
+                                                            >
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
+                                                            </button>
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); window.open(item.url, '_blank'); }}
+                                                                className="p-1.5 bg-white/20 hover:bg-white/40 rounded-lg text-white transition-colors"
+                                                                title="عرض كامل"
+                                                            >
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
+
+            {/* New Folder Modal */}
+            {showNewFolderModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowNewFolderModal(false)}>
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+                        <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <span>📁</span>
+                            <span>إنشاء مجلد جديد</span>
+                        </h3>
+                        <input
+                            type="text"
+                            value={newFolderName}
+                            onChange={(e) => setNewFolderName(e.target.value)}
+                            placeholder="اسم المجلد..."
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none mb-4"
+                            autoFocus
+                            onKeyDown={(e) => e.key === 'Enter' && handleCreateFolder()}
+                        />
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => { setShowNewFolderModal(false); setNewFolderName(''); }}
+                                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                إلغاء
+                            </button>
+                            <button
+                                onClick={handleCreateFolder}
+                                disabled={!newFolderName.trim()}
+                                className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                إنشاء
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Rename Folder Modal */}
+            {editingFolder && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => { setEditingFolder(null); setNewFolderName(''); }}>
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+                        <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <span>✏️</span>
+                            <span>إعادة تسمية المجلد</span>
+                        </h3>
+                        <input
+                            type="text"
+                            value={newFolderName}
+                            onChange={(e) => setNewFolderName(e.target.value)}
+                            placeholder="الاسم الجديد..."
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none mb-4"
+                            autoFocus
+                            onKeyDown={(e) => e.key === 'Enter' && handleRenameFolder()}
+                        />
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => { setEditingFolder(null); setNewFolderName(''); }}
+                                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                إلغاء
+                            </button>
+                            <button
+                                onClick={handleRenameFolder}
+                                disabled={!newFolderName.trim()}
+                                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                حفظ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Move Item Modal */}
+            {showMoveModal && movingItem && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => { setShowMoveModal(false); setMovingItem(null); }}>
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[70vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+                        <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <span>📁</span>
+                            <span>نقل إلى مجلد</span>
+                        </h3>
+                        <p className="text-sm text-gray-500 mb-4">نقل: <strong>{movingItem.name}</strong></p>
+                        <div className="flex-1 overflow-y-auto space-y-2">
+                            <button
+                                onClick={() => { onMoveItem(movingItem, null); setShowMoveModal(false); setMovingItem(null); }}
+                                className={`w-full text-right px-4 py-3 rounded-xl border transition-all flex items-center gap-3 ${movingItem.folderId === null ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'
+                                    }`}
+                            >
+                                <span className="text-xl">🏠</span>
+                                <span>الرئيسية (بدون مجلد)</span>
+                            </button>
+                            {mediaFolders.map(folder => (
+                                <button
+                                    key={folder.id}
+                                    onClick={() => { onMoveItem(movingItem, folder.id); setShowMoveModal(false); setMovingItem(null); }}
+                                    className={`w-full text-right px-4 py-3 rounded-xl border transition-all flex items-center gap-3 ${movingItem.folderId === folder.id ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    <span className="text-xl">📁</span>
+                                    <span>{folder.name}</span>
+                                </button>
+                            ))}
+                        </div>
+                        <div className="flex justify-end mt-4 pt-4 border-t">
+                            <button
+                                onClick={() => { setShowMoveModal(false); setMovingItem(null); }}
+                                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                إلغاء
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

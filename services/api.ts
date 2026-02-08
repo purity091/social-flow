@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from './supabase';
-import { Post, Campaign, MediaItem, Platform } from '../types';
+import { Post, Campaign, MediaItem, Platform, MediaFolder } from '../types';
 
 // =====================
 // LOCAL STORAGE FALLBACK
@@ -179,6 +179,117 @@ export const createCampaign = async (campaign: Campaign): Promise<Campaign> => {
 };
 
 
+// Media Folders
+const getLocalMediaFolders = (): MediaFolder[] => {
+    try {
+        const data = localStorage.getItem('socialflow_media_folders');
+        if (!data) return [];
+        return JSON.parse(data).map((f: any) => ({ ...f, date: new Date(f.date) }));
+    } catch { return []; }
+};
+
+const saveLocalMediaFolders = (folders: MediaFolder[]) => {
+    localStorage.setItem('socialflow_media_folders', JSON.stringify(folders));
+};
+
+export const getMediaFolders = async (): Promise<MediaFolder[]> => {
+    if (!isSupabaseConfigured || !supabase) {
+        return getLocalMediaFolders();
+    }
+    const { data, error } = await supabase.from('media_folders').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    return data.map((f: any) => ({
+        id: f.id,
+        name: f.name,
+        parentId: f.parent_id,
+        date: new Date(f.created_at)
+    }));
+};
+
+export const createMediaFolder = async (folder: Omit<MediaFolder, 'id' | 'date'>): Promise<MediaFolder> => {
+    if (!isSupabaseConfigured || !supabase) {
+        const folders = getLocalMediaFolders();
+        const newFolder: MediaFolder = {
+            id: `local-${Date.now()}-${Math.random()}`,
+            name: folder.name,
+            parentId: folder.parentId || null,
+            date: new Date()
+        };
+        saveLocalMediaFolders([newFolder, ...folders]);
+        return newFolder;
+    }
+
+    const userId = await getCurrentUserId();
+    if (!userId) throw new Error('User not authenticated');
+
+    const payload = {
+        user_id: userId,
+        name: folder.name,
+        parent_id: folder.parentId || null
+    };
+
+    const { data, error } = await supabase.from('media_folders').insert([payload]).select().single();
+    if (error) throw error;
+
+    return {
+        id: data.id,
+        name: data.name,
+        parentId: data.parent_id,
+        date: new Date(data.created_at)
+    };
+};
+
+export const updateMediaFolder = async (folder: MediaFolder): Promise<MediaFolder> => {
+    if (!isSupabaseConfigured || !supabase) {
+        const folders = getLocalMediaFolders();
+        const updated = folders.map(f => f.id === folder.id ? folder : f);
+        saveLocalMediaFolders(updated);
+        return folder;
+    }
+
+    const payload = {
+        name: folder.name,
+        parent_id: folder.parentId || null
+    };
+
+    const { error } = await supabase.from('media_folders').update(payload).eq('id', folder.id);
+    if (error) throw error;
+    return folder;
+};
+
+export const deleteMediaFolder = async (id: string): Promise<void> => {
+    if (!isSupabaseConfigured || !supabase) {
+        const folders = getLocalMediaFolders();
+        saveLocalMediaFolders(folders.filter(f => f.id !== id));
+        // Also update media items that were in this folder
+        const items = getLocalMediaItems();
+        saveLocalMediaItems(items.map(m => m.folderId === id ? { ...m, folderId: null } : m));
+        return;
+    }
+
+    // Update media items in this folder to have no folder
+    await supabase.from('media_items').update({ folder_id: null }).eq('folder_id', id);
+
+    const { error } = await supabase.from('media_folders').delete().eq('id', id);
+    if (error) throw error;
+};
+
+// Helper function to get image dimensions
+const getImageDimensions = (file: File): Promise<{ width: number; height: number }> => {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            URL.revokeObjectURL(img.src);
+            resolve({ width: img.naturalWidth, height: img.naturalHeight });
+        };
+        img.onerror = () => {
+            URL.revokeObjectURL(img.src);
+            reject(new Error('Failed to load image'));
+        };
+        img.src = URL.createObjectURL(file);
+    });
+};
+
 // Media
 export const getMediaItems = async (): Promise<MediaItem[]> => {
     if (!isSupabaseConfigured || !supabase) {
@@ -191,19 +302,37 @@ export const getMediaItems = async (): Promise<MediaItem[]> => {
         name: m.name,
         url: m.url,
         type: m.type,
-        date: new Date(m.created_at)
+        date: new Date(m.created_at),
+        folderId: m.folder_id,
+        width: m.width,
+        height: m.height,
+        size: m.file_size
     }));
 };
 
-export const uploadMediaItem = async (file: File): Promise<MediaItem> => {
+export const uploadMediaItem = async (file: File, folderId?: string | null): Promise<MediaItem> => {
+    // Get image dimensions before upload
+    let dimensions = { width: 0, height: 0 };
+    if (file.type.startsWith('image/')) {
+        try {
+            dimensions = await getImageDimensions(file);
+        } catch (e) {
+            console.warn('Could not get image dimensions', e);
+        }
+    }
+
     if (!isSupabaseConfigured || !supabase) {
-        // Local mode: use object URL
+        // Local mode: use object URL (preserves original file)
         const newItem: MediaItem = {
             id: `local-${Date.now()}-${Math.random()}`,
             url: URL.createObjectURL(file),
             name: file.name,
             type: file.type,
-            date: new Date()
+            date: new Date(),
+            folderId: folderId || null,
+            width: dimensions.width,
+            height: dimensions.height,
+            size: file.size
         };
         const items = getLocalMediaItems();
         saveLocalMediaItems([newItem, ...items]);
@@ -213,21 +342,29 @@ export const uploadMediaItem = async (file: File): Promise<MediaItem> => {
     const userId = await getCurrentUserId();
     if (!userId) throw new Error('User not authenticated');
 
-    // 1. Upload file to Storage (assuming bucket 'media' exists)
+    // 1. Upload file to Storage WITHOUT any compression (preserving original size)
     const fileName = `${userId}/${Date.now()}-${file.name}`;
-    const { error: uploadError } = await supabase.storage.from('media').upload(fileName, file);
+    const { error: uploadError } = await supabase.storage.from('media').upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false,
+        // No contentType transformation - keeps original
+    });
 
     if (uploadError) throw uploadError;
 
     // 2. Get Public URL
     const { data: urlData } = supabase.storage.from('media').getPublicUrl(fileName);
 
-    // 3. Save metadata to Database
+    // 3. Save metadata to Database with dimensions and size
     const payload = {
         user_id: userId,
         name: file.name,
         url: urlData.publicUrl,
-        type: file.type
+        type: file.type,
+        folder_id: folderId || null,
+        width: dimensions.width,
+        height: dimensions.height,
+        file_size: file.size
     };
 
     const { data: dbData, error: dbError } = await supabase.from('media_items').insert([payload]).select().single();
@@ -238,8 +375,30 @@ export const uploadMediaItem = async (file: File): Promise<MediaItem> => {
         name: dbData.name,
         url: dbData.url,
         type: dbData.type,
-        date: new Date(dbData.created_at)
+        date: new Date(dbData.created_at),
+        folderId: dbData.folder_id,
+        width: dbData.width,
+        height: dbData.height,
+        size: dbData.file_size
     };
+};
+
+export const updateMediaItem = async (item: MediaItem): Promise<MediaItem> => {
+    if (!isSupabaseConfigured || !supabase) {
+        const items = getLocalMediaItems();
+        const updated = items.map(m => m.id === item.id ? item : m);
+        saveLocalMediaItems(updated);
+        return item;
+    }
+
+    const payload = {
+        name: item.name,
+        folder_id: item.folderId || null
+    };
+
+    const { error } = await supabase.from('media_items').update(payload).eq('id', item.id);
+    if (error) throw error;
+    return item;
 };
 
 export const deleteMediaItem = async (id: string, url: string): Promise<void> => {
