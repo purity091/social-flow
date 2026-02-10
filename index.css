@@ -74,3 +74,57 @@ html, body {
 .duration-500 {
   animation-duration: 0.5s;
 }
+
+/* Additional animations for PWA components */
+@keyframes slide-in-from-right-4 {
+  from { transform: translateX(16px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slide-in-from-top-4 {
+  from { transform: translateY(-16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slide-out-to-top-4 {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(-16px); opacity: 0; }
+}
+
+.slide-in-from-right-4 {
+  animation-name: slide-in-from-right-4;
+}
+
+.slide-in-from-top-4 {
+  animation-name: slide-in-from-top-4;
+}
+
+.slide-out-to-top-4 {
+  animation-name: slide-out-to-top-4;
+}
+
+.animate-out {
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+}
+
+/* Performance: promote animated elements to GPU layer */
+.animate-in,
+.animate-out {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* Image rendering optimization */
+img {
+  content-visibility: auto;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
