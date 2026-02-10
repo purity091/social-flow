@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Calendar, FileText, BarChart2, Image, Palette } from 'lucide-react';
+import { Calendar, FileText, BarChart2, Image, Palette, TrendingUp } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
@@ -14,6 +14,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
     { id: 'gantt', label: 'مخطط غانت', icon: <BarChart2 size={20} /> },
     { id: 'media', label: 'مكتبة الوسائط', icon: <Image size={20} /> },
     { id: 'studios', label: 'استديوهات التصميم', icon: <Palette size={20} /> },
+    { id: 'investor', label: 'منصة المستثمر', icon: <TrendingUp size={20} /> },
   ];
 
   return (

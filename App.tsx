@@ -7,18 +7,19 @@ import PostsListView from './components/PostsListView';
 import PostModal from './components/PostModal';
 import MediaLibrary from './components/MediaLibrary';
 import DesignStudios from './components/DesignStudios';
+import InvestorPlatform from './components/InvestorPlatform';
 import LoginPage from './components/LoginPage';
 import { Post, Campaign, Platform, MediaItem, MediaFolder } from './types';
 import * as api from './services/api';
 import { useAuth } from './contexts/AuthContext';
-import { 
-  Zap, 
-  Download, 
-  Upload, 
-  Plus, 
-  LogOut, 
-  ClipboardList, 
-  Copy 
+import {
+  Zap,
+  Download,
+  Upload,
+  Plus,
+  LogOut,
+  ClipboardList,
+  Copy
 } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -424,6 +425,8 @@ const App: React.FC = () => {
         );
       case 'studios':
         return <DesignStudios />;
+      case 'investor':
+        return <InvestorPlatform />;
       default:
         return <CalendarView posts={posts} onAddPost={openNewPostModal} onEditPost={openEditPostModal} />;
     }
@@ -441,6 +444,7 @@ const App: React.FC = () => {
               {activeTab === 'posts' && 'أرشيف المحتوى'}
               {activeTab === 'media' && 'مكتبة الوسائط'}
               {activeTab === 'studios' && 'استديوهات التصميم'}
+              {activeTab === 'investor' && 'منصة المستثمر'}
             </h2>
             <p className="text-gray-500 mt-1 font-medium text-sm">نظام إدارة المحتوى المتكامل (Supabase Edition)</p>
           </div>
@@ -466,7 +470,7 @@ const App: React.FC = () => {
             )}
           </div>
           <div className="flex flex-wrap gap-3">
-            {activeTab !== 'media' && (
+            {activeTab !== 'media' && activeTab !== 'investor' && (
               <button
                 onClick={() => setShowBulkGen(!showBulkGen)}
                 className={`px-5 py-2.5 rounded-xl font-bold shadow-lg transition-all flex items-center gap-2 transform active:scale-95 ${showBulkGen ? 'bg-rose-500 text-white shadow-rose-200' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
@@ -476,7 +480,7 @@ const App: React.FC = () => {
               </button>
             )}
 
-            {activeTab !== 'media' && activeTab !== 'studios' && (
+            {activeTab !== 'media' && activeTab !== 'studios' && activeTab !== 'investor' && (
               <>
                 <button
                   onClick={handleExportPosts}
