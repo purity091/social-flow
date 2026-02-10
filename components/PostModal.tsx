@@ -61,7 +61,7 @@ const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, onSave, post, in
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
 
       {showMediaLibrary ? (
-        <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl z-50 overflow-hidden h-[80vh]">
+        <div className="relative w-full max-w-4xl bg-white rounded-none md:rounded-2xl shadow-2xl z-50 overflow-hidden h-full md:h-[80vh]">
           <div className="absolute top-4 left-4 z-10">
             <button onClick={() => setShowMediaLibrary(false)} className="bg-white p-2 rounded-full shadow-md text-gray-500 hover:text-gray-800">
               ✕ إغلاق
@@ -76,7 +76,7 @@ const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, onSave, post, in
           />
         </div>
       ) : (
-        <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl transform transition-all animate-in fade-in zoom-in-95 duration-200 overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="relative w-full max-w-2xl bg-white rounded-none md:rounded-2xl shadow-2xl transform transition-all animate-in fade-in zoom-in-95 duration-200 overflow-hidden flex flex-col max-h-full md:max-h-[90vh]">
           <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
             <h3 className="text-xl font-bold text-gray-800">
               {post ? 'تحرير المنشور' : 'منشور جديد'}

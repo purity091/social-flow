@@ -25,7 +25,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ posts, onAddPost, onEditPos
 
   // Padding for start of month
   for (let i = 0; i < startDay; i++) {
-    days.push(<div key={`empty-${i}`} className="min-h-[120px] bg-gray-50/50 border-b border-l border-gray-100"></div>);
+    days.push(<div key={`empty-${i}`} className="min-h-[60px] md:min-h-[120px] bg-gray-50/50 border-b border-l border-gray-100"></div>);
   }
 
   // Days with content
@@ -43,20 +43,21 @@ const CalendarView: React.FC<CalendarViewProps> = ({ posts, onAddPost, onEditPos
             onAddPost(date);
           }
         }}
-        className={`min-h-[120px] p-2 border-b border-l border-gray-100 bg-white transition-all relative group hover:shadow-[inset_0_0_20px_rgba(0,0,0,0.02)] flex flex-col
+        className={`min-h-[60px] md:min-h-[120px] p-1 md:p-2 border-b border-l border-gray-100 bg-white transition-all relative group hover:shadow-[inset_0_0_20px_rgba(0,0,0,0.02)] flex flex-col
             ${isToday ? 'bg-indigo-50/30' : ''}`}
       >
-        <div className="flex justify-between items-start mb-2">
-          <span className={`text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full transition-colors
+        <div className="flex justify-between items-start mb-1 md:mb-2">
+          <span className={`text-[10px] md:text-sm font-medium w-5 h-5 md:w-7 md:h-7 flex items-center justify-center rounded-full transition-colors
             ${isToday ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200' : 'text-gray-500 group-hover:text-gray-900 group-hover:bg-gray-100'}`}>
             {d}
           </span>
-          <button className="add-btn opacity-0 group-hover:opacity-100 text-indigo-600 hover:bg-indigo-50 p-1 rounded transition-all">
+          {dayPosts.length > 0 && <span className="md:hidden w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1"></span>}
+          <button className="add-btn hidden md:block opacity-0 group-hover:opacity-100 text-indigo-600 hover:bg-indigo-50 p-1 rounded transition-all">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </button>
         </div>
 
-        <div className="space-y-1.5 flex-1 pr-0.5">
+        <div className="space-y-1 md:space-y-1.5 flex-1 pr-0.5 hidden md:block">
           {dayPosts.map(post => (
             <div
               key={post.id}
@@ -65,17 +66,23 @@ const CalendarView: React.FC<CalendarViewProps> = ({ posts, onAddPost, onEditPos
                 onEditPost(post);
               }}
               className={`
-                text-[11px] px-2 py-1.5 rounded-lg truncate flex items-center gap-2 cursor-pointer
+                text-[10px] md:text-[11px] px-1.5 md:px-2 py-1 md:py-1.5 rounded-lg truncate flex items-center gap-1.5 md:gap-2 cursor-pointer
                 shadow-sm hover:shadow-md transition-all hover:scale-[1.02] active:scale-95 border border-transparent hover:border-white/20
                 ${getPlatformConfig(post.platform).color} text-white
                 ${post.status === 'Draft' ? 'opacity-80 border-dashed border-white/50 bg-opacity-70' : ''}
               `}
             >
-              <div className="shrink-0">{getPlatformConfig(post.platform).icon('w-3.5 h-3.5')}</div>
+              <div className="shrink-0">{getPlatformConfig(post.platform).icon('w-3 h-3 md:w-3.5 md:h-3.5')}</div>
               <span className="truncate font-medium">{post.title}</span>
             </div>
           ))}
         </div>
+        {/* Mobile: show count only */}
+        {dayPosts.length > 0 && (
+          <div className="md:hidden mt-0.5">
+            <div className="text-[8px] text-center text-gray-500 font-bold">{dayPosts.length}</div>
+          </div>
+        )}
       </div>
     );
   }
@@ -85,12 +92,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({ posts, onAddPost, onEditPos
   const goToday = () => setCurrentDate(new Date());
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden ring-1 ring-gray-900/5">
-      <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4 bg-gradient-to-r from-gray-50/50 to-white">
-        <div className="flex items-center gap-6">
+    <div className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden ring-1 ring-gray-900/5">
+      <div className="p-3 md:p-6 border-b border-gray-100 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4 bg-gradient-to-r from-gray-50/50 to-white">
+        <div className="flex items-center gap-4 md:gap-6">
           <div className="flex flex-col">
-            <h2 className="text-2xl font-bold text-gray-900 leading-none">{monthName}</h2>
-            <span className="text-sm text-gray-400 font-medium mt-1">{year}</span>
+            <h2 className="text-lg md:text-2xl font-bold text-gray-900 leading-none">{monthName}</h2>
+            <span className="text-xs md:text-sm text-gray-400 font-medium mt-0.5 md:mt-1">{year}</span>
           </div>
 
           <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-200 shadow-sm">
@@ -104,22 +111,26 @@ const CalendarView: React.FC<CalendarViewProps> = ({ posts, onAddPost, onEditPos
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap gap-2 md:gap-4 justify-center md:justify-end">
           {Object.values(Platform).map(p => (
-            <div key={p} className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-gray-50 border border-gray-100">
-              <div className={`w-2 h-2 rounded-full ${getPlatformConfig(p).color} ring-2 ring-white`}></div>
-              <span className="text-[10px] font-semibold text-gray-600">{p}</span>
+            <div key={p} className="flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-0.5 md:py-1 rounded-full bg-gray-50 border border-gray-100">
+              <div className={`w-1.5 md:w-2 h-1.5 md:h-2 rounded-full ${getPlatformConfig(p).color} ring-2 ring-white`}></div>
+              <span className="text-[8px] md:text-[10px] font-semibold text-gray-600">{p}</span>
             </div>
           ))}
         </div>
       </div>
 
       <div className="grid grid-cols-7 border-r border-gray-100 bg-gray-50/30">
-        {['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'].map(day => (
-          <div key={day} className="py-4 text-center text-xs font-extrabold text-gray-400 border-b border-l border-gray-100 uppercase tracking-wider">
-            {day}
-          </div>
-        ))}
+        {['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'].map((day, i) => {
+          const shortNames = ['ح', 'ن', 'ث', 'ر', 'خ', 'ج', 'س'];
+          return (
+            <div key={day} className="py-2 md:py-4 text-center text-[10px] md:text-xs font-extrabold text-gray-400 border-b border-l border-gray-100 uppercase tracking-wider">
+              <span className="hidden md:inline">{day}</span>
+              <span className="md:hidden">{shortNames[i]}</span>
+            </div>
+          );
+        })}
         {days}
       </div>
     </div>

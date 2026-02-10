@@ -15,19 +15,19 @@ const InvestorPlatform: React.FC = () => {
     return (
         <div className="space-y-6">
             {/* Header Section */}
-            <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-8 text-white shadow-xl overflow-hidden relative">
+            <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl md:rounded-3xl p-4 md:p-8 text-white shadow-xl overflow-hidden relative">
                 <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://images.unsplash.com/photo-1611974765270-ca1258634369?q=80&w=1920&auto=format&fit=crop')] bg-cover bg-center"></div>
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
-                        <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-                            <Globe className="text-emerald-400" size={32} />
-                            منصة المستثمر (Investor Brand)
+                        <h1 className="text-xl md:text-3xl font-bold mb-2 flex items-center gap-2 md:gap-3">
+                            <Globe className="text-emerald-400 shrink-0" size={24} />
+                            <span>منصة المستثمر</span>
                         </h1>
-                        <p className="text-slate-300 max-w-2xl text-lg">
+                        <p className="text-slate-300 max-w-2xl text-sm md:text-lg">
                             الوجهة الأولى لصناع المحتوى المالي والاستثماري. أدوات احترافية، تحليلات دقيقة، ومجتمع نخبوي.
                         </p>
                     </div>
-                    <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 min-w-[300px]">
+                    <div className="bg-white/10 backdrop-blur-md rounded-xl md:rounded-2xl p-3 md:p-4 border border-white/20 w-full md:min-w-[300px]">
                         <div className="text-xs text-slate-400 mb-2 font-semibold uppercase tracking-wider">بيانات الدخول السريع</div>
                         <div className="space-y-3">
                             <div className="flex justify-between items-center group">
@@ -55,7 +55,7 @@ const InvestorPlatform: React.FC = () => {
             </div>
 
             {/* Info Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                 <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
                     <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 mb-4">
                         <Target size={24} />
@@ -88,7 +88,7 @@ const InvestorPlatform: React.FC = () => {
             </div>
 
             {/* Content Preview / Iframe Area */}
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-[600px]">
+            <div className="bg-white rounded-xl md:rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-[400px] md:h-[600px]">
                 <div className="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
                     <h3 className="font-bold text-gray-700 flex items-center gap-2">
                         <Globe size={18} />

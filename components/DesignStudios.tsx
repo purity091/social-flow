@@ -116,26 +116,26 @@ const DesignStudios: React.FC = () => {
     }
 
     return (
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl md:rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
             {/* Header */}
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gradient-to-l from-pink-50 to-purple-50">
+            <div className="p-4 md:p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-gradient-to-l from-pink-50 to-purple-50">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
-                        <Link size={28} />
+                    <h2 className="text-lg md:text-2xl font-bold text-gray-800 flex items-center gap-2 md:gap-3">
+                        <Link size={22} />
                         <span>روابط استديوهات التصميم</span>
                     </h2>
-                    <p className="text-gray-500 text-sm mt-1">احفظ روابط مواقع التصميم المفضلة لديك</p>
+                    <p className="text-gray-500 text-xs md:text-sm mt-1">احفظ روابط مواقع التصميم المفضلة لديك</p>
                 </div>
                 <button
                     onClick={() => setShowAddModal(true)}
-                    className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold shadow-lg shadow-purple-200 hover:shadow-xl transition-all flex items-center gap-2"
+                    className="w-full sm:w-auto px-4 md:px-5 py-2 md:py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold shadow-lg shadow-purple-200 hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm md:text-base"
                 >
                     <span>+</span> إضافة رابط
                 </button>
             </div>
 
             {/* Table */}
-            <div className="p-6">
+            <div className="p-3 md:p-6">
                 {studios.length > 0 ? (
                     <div className="overflow-x-auto">
                         <table className="w-full">

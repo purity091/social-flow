@@ -19,7 +19,7 @@ const GanttChart: React.FC<GanttChartProps> = ({ campaigns }) => {
   const viewRange = useMemo(() => {
     const start = new Date(baseDate.getFullYear(), viewMode === 'year' ? 0 : baseDate.getMonth(), 1);
     let end: Date;
-    
+
     if (viewMode === 'year') {
       end = new Date(baseDate.getFullYear(), 11, 31, 23, 59, 59);
     } else if (viewMode === 'month') {
@@ -86,33 +86,32 @@ const GanttChart: React.FC<GanttChartProps> = ({ campaigns }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
-      <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row justify-between items-center gap-4">
+    <div className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+      <div className="p-3 md:p-6 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 md:gap-4">
         <div>
-          <h2 className="text-xl font-bold text-gray-800">مخطط غانت الزمني</h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <h2 className="text-lg md:text-xl font-bold text-gray-800">مخطط غانت الزمني</h2>
+          <p className="text-xs md:text-sm text-gray-500 mt-0.5 md:mt-1">
             {viewMode === 'year' && `عام ${baseDate.getFullYear()}`}
             {viewMode === 'month' && `${monthsAR[baseDate.getMonth()]} ${baseDate.getFullYear()}`}
             {viewMode === 'day' && `أسبوع من ${viewRange.start.toLocaleDateString('ar-SA')}`}
           </p>
         </div>
-        
-        <div className="flex items-center gap-4">
+
+        <div className="flex items-center gap-2 md:gap-4 w-full sm:w-auto justify-end">
           <div className="flex bg-white rounded-lg p-1 border border-gray-200 shadow-sm">
             <button onClick={() => navigate(-1)} className="px-3 py-1 hover:bg-gray-50 text-indigo-600 font-bold border-l">→</button>
             <button onClick={() => navigate(1)} className="px-3 py-1 hover:bg-gray-50 text-indigo-600 font-bold">←</button>
           </div>
-          
+
           <div className="flex bg-white rounded-lg p-1 border border-gray-200 shadow-sm">
             {(['day', 'month', 'year'] as GanttViewMode[]).map((mode) => (
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
-                className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${
-                  viewMode === mode 
-                  ? 'bg-indigo-600 text-white shadow-sm' 
-                  : 'text-gray-500 hover:bg-gray-50'
-                }`}
+                className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${viewMode === mode
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-gray-500 hover:bg-gray-50'
+                  }`}
               >
                 {mode === 'day' ? 'أسبوع' : mode === 'month' ? 'شهر' : 'سنة'}
               </button>
@@ -120,9 +119,9 @@ const GanttChart: React.FC<GanttChartProps> = ({ campaigns }) => {
           </div>
         </div>
       </div>
-      
+
       <div className="overflow-x-auto">
-        <div className="min-w-[1000px]">
+        <div className="min-w-[700px] md:min-w-[1000px]">
           <div className="flex border-b border-gray-100 bg-gray-50/30">
             <div className="w-56 p-4 font-bold text-gray-600 border-l border-gray-100 shrink-0">النشاط / الحملة</div>
             <div className="flex-1 flex">{renderTimelineHeader()}</div>
@@ -140,9 +139,9 @@ const GanttChart: React.FC<GanttChartProps> = ({ campaigns }) => {
                     <span className="text-[10px] text-gray-400 block mt-0.5 truncate">{campaign.description}</span>
                   </div>
                   <div className="flex-1 relative h-16 flex items-center">
-                    <div 
+                    <div
                       className="absolute h-8 rounded-lg shadow-sm flex items-center px-3 text-white text-[10px] font-bold transition-all hover:brightness-110 overflow-hidden whitespace-nowrap z-0"
-                      style={{ 
+                      style={{
                         ...style,
                         backgroundColor: campaign.color || '#4f46e5'
                       }}
@@ -154,12 +153,12 @@ const GanttChart: React.FC<GanttChartProps> = ({ campaigns }) => {
                 </div>
               );
             })}
-            
+
             {/* Current Day Indicator */}
             {viewMode !== 'year' && (
-              <div 
+              <div
                 className="absolute top-0 bottom-0 w-px bg-red-400 z-20 pointer-events-none"
-                style={{ 
+                style={{
                   left: `${((new Date().getTime() - viewRange.start.getTime()) / (viewRange.end.getTime() - viewRange.start.getTime())) * 100}%`,
                   display: new Date() >= viewRange.start && new Date() <= viewRange.end ? 'block' : 'none'
                 }}

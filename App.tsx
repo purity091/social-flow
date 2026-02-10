@@ -433,20 +433,23 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-50 font-['IBM_Plex_Sans_Arabic']">
+    <div className="min-h-screen bg-slate-50 font-['IBM_Plex_Sans_Arabic']">
       <Sidebar activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setShowBulkGen(false); }} />
-      <main className="flex-1 mr-64 p-8 transition-all">
+      <main className="flex-1 md:mr-64 p-4 md:p-8 pb-24 md:pb-8 transition-all">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900 tracking-tight">
-              {activeTab === 'calendar' && 'التقويم الذكي'}
-              {activeTab === 'gantt' && 'تخطيط المحتوى'}
-              {activeTab === 'posts' && 'أرشيف المحتوى'}
-              {activeTab === 'media' && 'مكتبة الوسائط'}
-              {activeTab === 'studios' && 'استديوهات التصميم'}
-              {activeTab === 'investor' && 'منصة المستثمر'}
+          <div className="w-full md:w-auto">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 tracking-tight flex items-center justify-between">
+              <span>
+                {activeTab === 'calendar' && 'التقويم الذكي'}
+                {activeTab === 'gantt' && 'تخطيط المحتوى'}
+                {activeTab === 'posts' && 'أرشيف المحتوى'}
+                {activeTab === 'media' && 'مكتبة الوسائط'}
+                {activeTab === 'studios' && 'استديوهات التصميم'}
+                {activeTab === 'investor' && 'منصة المستثمر'}
+              </span>
+              <span className="md:hidden text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-semibold">SocialFlow</span>
             </h2>
-            <p className="text-gray-500 mt-1 font-medium text-sm">نظام إدارة المحتوى المتكامل (Supabase Edition)</p>
+            <p className="text-gray-500 mt-1 font-medium text-xs md:text-sm hidden sm:block">نظام إدارة المحتوى المتكامل (Supabase Edition)</p>
           </div>
           <div className="flex items-center gap-4">
             {/* User Info */}
@@ -469,14 +472,14 @@ const App: React.FC = () => {
               </div>
             )}
           </div>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2 md:gap-3 w-full md:w-auto">
             {activeTab !== 'media' && activeTab !== 'investor' && (
               <button
                 onClick={() => setShowBulkGen(!showBulkGen)}
-                className={`px-5 py-2.5 rounded-xl font-bold shadow-lg transition-all flex items-center gap-2 transform active:scale-95 ${showBulkGen ? 'bg-rose-500 text-white shadow-rose-200' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                className={`px-3 md:px-5 py-2 md:py-2.5 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-2 transform active:scale-95 text-sm md:text-base ${showBulkGen ? 'bg-rose-500 text-white shadow-rose-200' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
                   }`}
               >
-                <span>{showBulkGen ? 'إلغاء' : <><Zap size={18} /> <span>مولد البرامج</span></>}</span>
+                <span>{showBulkGen ? 'إلغاء' : <><Zap size={16} /> <span className="hidden sm:inline">مولد البرامج</span><span className="sm:hidden">مولد</span></>}</span>
               </button>
             )}
 
@@ -484,27 +487,28 @@ const App: React.FC = () => {
               <>
                 <button
                   onClick={handleExportPosts}
-                  className="px-4 py-2.5 rounded-xl font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-all flex items-center gap-2"
+                  className="px-3 md:px-4 py-2 md:py-2.5 rounded-xl font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-all flex items-center justify-center gap-1.5 text-sm md:text-base"
                 >
-                  <Download size={18} />
-                  <span>تصدير</span>
+                  <Download size={16} />
+                  <span className="hidden sm:inline">تصدير</span>
                 </button>
                 <button
                   onClick={() => setShowImportModal(true)}
-                  className="px-4 py-2.5 rounded-xl font-bold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-all flex items-center gap-2"
+                  className="px-3 md:px-4 py-2 md:py-2.5 rounded-xl font-bold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-all flex items-center justify-center gap-1.5 text-sm md:text-base"
                 >
-                  <Upload size={18} />
-                  <span>استيراد JSON</span>
+                  <Upload size={16} />
+                  <span className="hidden sm:inline">استيراد</span>
                 </button>
               </>
             )}
 
             <button
               onClick={() => openNewPostModal()}
-              className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
+              className="bg-indigo-600 text-white px-3 md:px-5 py-2 md:py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all transform active:scale-95 flex items-center justify-center gap-1.5 text-sm md:text-base"
             >
-              <Plus size={18} />
-              <span>منشور جديد</span>
+              <Plus size={16} />
+              <span className="hidden sm:inline">منشور جديد</span>
+              <span className="sm:hidden">جديد</span>
             </button>
           </div>
         </header>
@@ -526,8 +530,8 @@ const App: React.FC = () => {
 
       {/* JSON Import Modal */}
       {showImportModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl p-6 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end md:items-center justify-center md:p-4">
+          <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-2xl w-full max-w-3xl p-4 md:p-6 max-h-[90vh] overflow-y-auto">
             <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
               <Upload size={24} className="text-gray-800" />
               <span>استيراد منشورات من JSON</span>

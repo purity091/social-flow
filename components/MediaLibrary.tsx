@@ -249,7 +249,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
 
     return (
         <div
-            className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-[calc(100vh-140px)] relative"
+            className="bg-white rounded-xl md:rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-[calc(100vh-160px)] md:h-[calc(100vh-140px)] relative"
             onDragEnter={handleDragEnter}
             onDragOver={handleDragOverUpload}
             onDragLeave={handleDragLeaveUpload}
@@ -269,28 +269,28 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
             )}
 
             {/* Header */}
-            <div className="p-6 border-b border-gray-100 bg-gray-50/50">
-                <div className="flex justify-between items-center mb-4">
+            <div className="p-3 md:p-6 border-b border-gray-100 bg-gray-50/50">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                            <Image size={24} className="text-gray-800" />
+                        <h2 className="text-lg md:text-2xl font-bold text-gray-800 flex items-center gap-2">
+                            <Image size={20} className="text-gray-800" />
                             <span>مكتبة الوسائط</span>
                         </h2>
-                        <p className="text-gray-500 text-sm mt-1">اسحب وأفلت الصور في أي مكان أو استخدم زر الرفع</p>
+                        <p className="text-gray-500 text-xs md:text-sm mt-1 hidden sm:block">اسحب وأفلت الصور في أي مكان أو استخدم زر الرفع</p>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex gap-2 md:gap-3 w-full sm:w-auto">
                         {/* View Mode Toggle */}
                         <div className="flex bg-gray-100 rounded-xl p-1">
                             <button
                                 onClick={() => setViewMode('grid')}
-                                className={`p-2.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white shadow text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
+                                className={`p-2 md:p-2.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white shadow text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
                                 title="عرض شبكة"
                             >
                                 <GridIcon />
                             </button>
                             <button
                                 onClick={() => setViewMode('list')}
-                                className={`p-2.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white shadow text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
+                                className={`p-2 md:p-2.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white shadow text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
                                 title="عرض قائمة"
                             >
                                 <ListIcon />
@@ -298,17 +298,19 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                         </div>
                         <button
                             onClick={() => setShowNewFolderModal(true)}
-                            className="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-lg shadow-emerald-100 transition-all flex items-center gap-2"
+                            className="flex-1 sm:flex-none px-3 md:px-5 py-2 md:py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-lg shadow-emerald-100 transition-all flex items-center justify-center gap-1.5 md:gap-2 text-sm md:text-base"
                         >
-                            <Plus size={20} />
-                            <span>مجلد جديد</span>
+                            <Plus size={18} />
+                            <span className="hidden sm:inline">مجلد جديد</span>
+                            <span className="sm:hidden">مجلد</span>
                         </button>
                         <button
                             onClick={() => fileInputRef.current?.click()}
-                            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 transition-all flex items-center gap-2"
+                            className="flex-1 sm:flex-none px-3 md:px-6 py-2 md:py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 transition-all flex items-center justify-center gap-1.5 md:gap-2 text-sm md:text-base"
                         >
-                            <Upload size={20} />
-                            <span>رفع صور جديدة</span>
+                            <Upload size={18} />
+                            <span className="hidden sm:inline">رفع صور جديدة</span>
+                            <span className="sm:hidden">رفع</span>
                         </button>
                         <input
                             type="file"

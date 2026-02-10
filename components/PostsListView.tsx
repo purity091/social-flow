@@ -29,8 +29,8 @@ const PostsListView: React.FC<PostsListViewProps> = ({ posts, onDeletePost, onEd
   return (
     <div className="space-y-4">
       {platformsWithPosts.length === 0 && (
-        <div className="text-center py-20 bg-white rounded-3xl border border-gray-100">
-          <p className="text-gray-400">لا توجد منشورات حالياً. ابدأ بإضافة منشور أو توليد برنامج مكثف.</p>
+        <div className="text-center py-12 md:py-20 bg-white rounded-xl md:rounded-3xl border border-gray-100">
+          <p className="text-gray-400 text-sm md:text-base px-4">لا توجد منشورات حالياً. ابدأ بإضافة منشور أو توليد برنامج مكثف.</p>
         </div>
       )}
 
@@ -55,7 +55,7 @@ const PostsListView: React.FC<PostsListViewProps> = ({ posts, onDeletePost, onEd
         });
 
         return (
-          <div key={platform} className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+          <div key={platform} className="bg-white rounded-xl md:rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
             <button
               onClick={() => togglePlatform(platform)}
               className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-gray-50"
@@ -75,7 +75,7 @@ const PostsListView: React.FC<PostsListViewProps> = ({ posts, onDeletePost, onEd
             </button>
 
             {isPlatformExpanded && (
-              <div className="p-4 space-y-4 bg-gray-50/30">
+              <div className="p-3 md:p-4 space-y-4 bg-gray-50/30">
                 {/* Programs Toggles */}
                 {Object.entries(groupedByProgram).map(([programId, data]) => (
                   <div key={programId} className="border border-indigo-50 rounded-xl bg-white overflow-hidden shadow-sm">
@@ -137,7 +137,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onDelete, onEdit }) => (
     </div>
     <h5 className="font-bold text-gray-800 text-sm mb-2 line-clamp-1">{post.title}</h5>
     <p className="text-xs text-gray-500 line-clamp-2 mb-4 flex-grow leading-relaxed">{post.content}</p>
-    <div className="flex justify-end pt-3 border-t border-gray-50 opacity-0 group-hover:opacity-100 transition-opacity gap-2">
+    <div className="flex justify-end pt-3 border-t border-gray-50 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity gap-2">
       <button
         onClick={() => onEdit(post)}
         className="text-indigo-500 hover:text-indigo-700 text-[10px] font-bold"
