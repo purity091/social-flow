@@ -1,7 +1,6 @@
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // Plugin to remove Tailwind CDN script in production build
@@ -28,8 +27,7 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       react(),
-      tailwindcss(),
-      // Remove CDN in production since Tailwind is now bundled
+      // Remove CDN in production since Tailwind is now bundled via PostCSS
       isProd && removeTailwindCDN(),
       VitePWA({
         registerType: 'autoUpdate',
