@@ -1,10 +1,26 @@
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
+
+// Plugin to remove Tailwind CDN script in production build
+function removeTailwindCDN() {
+  return {
+    name: 'remove-tailwind-cdn',
+    transformIndexHtml(html: string) {
+      return html.replace(
+        /<script src="https:\/\/cdn\.tailwindcss\.com"><\/script>/g,
+        '<!-- Tailwind processed at build time -->'
+      );
+    },
+  };
+}
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
+  const isProd = mode === 'production';
+
   return {
     server: {
       port: 3000,
@@ -12,6 +28,9 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       react(),
+      tailwindcss(),
+      // Remove CDN in production since Tailwind is now bundled
+      isProd && removeTailwindCDN(),
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: [
@@ -54,128 +73,118 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
-          // Cache strategies
+          // SPA fallback - critical for standalone PWA mode
+          navigateFallback: '/index.html',
+          navigateFallbackDenylist: [/^\/api/, /\.\w+$/],
+
           runtimeCaching: [
-            // Cache Google Fonts
+            // Google Fonts stylesheet
             {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-              handler: 'CacheFirst',
+              handler: 'StaleWhileRevalidate',
               options: {
-                cacheName: 'google-fonts-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
-                },
-                cacheableResponse: {
-                  statuses: [0, 200],
-                },
-              },
-            },
-            {
-              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'gstatic-fonts-cache',
+                cacheName: 'google-fonts-stylesheets',
                 expiration: {
                   maxEntries: 10,
                   maxAgeSeconds: 60 * 60 * 24 * 365,
                 },
-                cacheableResponse: {
-                  statuses: [0, 200],
-                },
+                cacheableResponse: { statuses: [0, 200] },
               },
             },
-            // Cache images from Supabase storage
+            // Google Fonts webfont files
+            {
+              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-webfonts',
+                expiration: {
+                  maxEntries: 30,
+                  maxAgeSeconds: 60 * 60 * 24 * 365,
+                },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            // Supabase storage images
             {
               urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/.*/i,
               handler: 'CacheFirst',
               options: {
-                cacheName: 'supabase-images-cache',
+                cacheName: 'supabase-images',
                 expiration: {
                   maxEntries: 200,
-                  maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                  maxAgeSeconds: 60 * 60 * 24 * 30,
                 },
-                cacheableResponse: {
-                  statuses: [0, 200],
-                },
+                cacheableResponse: { statuses: [0, 200] },
               },
             },
-            // Cache any external images
+            // General images
             {
               urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif|ico)$/i,
               handler: 'CacheFirst',
               options: {
-                cacheName: 'images-cache',
+                cacheName: 'images',
                 expiration: {
                   maxEntries: 100,
-                  maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                  maxAgeSeconds: 60 * 60 * 24 * 30,
                 },
-                cacheableResponse: {
-                  statuses: [0, 200],
-                },
+                cacheableResponse: { statuses: [0, 200] },
               },
             },
-            // Cache Unsplash images
+            // Unsplash images
             {
               urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
               handler: 'CacheFirst',
               options: {
-                cacheName: 'unsplash-images-cache',
+                cacheName: 'unsplash-images',
                 expiration: {
                   maxEntries: 50,
                   maxAgeSeconds: 60 * 60 * 24 * 30,
                 },
-                cacheableResponse: {
-                  statuses: [0, 200],
-                },
+                cacheableResponse: { statuses: [0, 200] },
               },
             },
-            // Supabase API calls - NetworkFirst
+            // Supabase API
             {
               urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/.*/i,
               handler: 'NetworkFirst',
               options: {
-                cacheName: 'supabase-api-cache',
+                cacheName: 'supabase-api',
                 expiration: {
                   maxEntries: 50,
-                  maxAgeSeconds: 60 * 5, // 5 minutes
+                  maxAgeSeconds: 60 * 5,
                 },
-                cacheableResponse: {
-                  statuses: [0, 200],
-                },
+                cacheableResponse: { statuses: [0, 200] },
                 networkTimeoutSeconds: 10,
               },
             },
+            // Supabase Auth - always network
+            {
+              urlPattern: /^https:\/\/.*\.supabase\.co\/auth\/.*/i,
+              handler: 'NetworkOnly',
+            },
           ],
-          // Precache static assets
-          globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
-          // Skip waiting to activate new SW immediately
+          globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2,webmanifest}'],
           skipWaiting: true,
           clientsClaim: true,
-          // Clean old caches
           cleanupOutdatedCaches: true,
         },
       }),
-    ],
+    ].filter(Boolean),
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
       },
     },
     build: {
-      // Optimize chunk splitting
       rollupOptions: {
         output: {
           manualChunks: {
             'vendor-react': ['react', 'react-dom'],
-            'vendor-supabase': ['@supabase/supabase-js'],
             'vendor-icons': ['lucide-react'],
           },
         },
       },
-      // Enable source maps for debugging
       sourcemap: false,
-      // Minify
       minify: 'terser',
       terserOptions: {
         compress: {

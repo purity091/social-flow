@@ -1,15 +1,14 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-    
+
     <!-- SEO & Meta -->
     <title>SocialFlow AI - جدولة المحتوى الذكية</title>
     <meta name="description" content="نظام إدارة وجدولة المحتوى الذكي للمنصات الاجتماعية - SocialFlow AI">
-    <meta name="keywords" content="إدارة محتوى, جدولة, منصات اجتماعية, SocialFlow, AI">
-    
+
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#4f46e5">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,80 +19,59 @@
     <meta name="msapplication-TileColor" content="#4f46e5">
     <meta name="msapplication-tap-highlight" content="no">
     <meta name="format-detection" content="telephone=no">
-    
+
     <!-- PWA Icons -->
     <link rel="icon" type="image/svg+xml" href="/icon-192x192.svg">
     <link rel="apple-touch-icon" href="/apple-touch-icon.svg">
-    <link rel="mask-icon" href="/icon-512x512.svg" color="#4f46e5">
-    
+
     <!-- Preconnect for Performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://images.unsplash.com">
-    
-    <!-- Font Loading with display=swap for better CLS -->
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
+    <!-- Font Loading -->
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CDN (dev only - build will use bundled CSS) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <style>
-        /* Critical CSS - inlined for faster first paint */
         body {
             font-family: 'IBM Plex Sans Arabic', sans-serif;
             background-color: #f8fafc;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            text-rendering: optimizeLegibility;
             overscroll-behavior-y: contain;
             -webkit-tap-highlight-color: transparent;
         }
-        
-        /* Prevent layout shift during font loading */
-        body.fonts-loading {
-            font-family: system-ui, -apple-system, sans-serif;
-        }
-        
+
         .gantt-grid {
             background-size: 100px 100%;
             background-image: linear-gradient(to right, #e2e8f0 1px, transparent 1px);
         }
 
-        /* Safe area for notched devices */
-        .pb-safe {
-            padding-bottom: env(safe-area-inset-bottom, 0px);
-        }
-        
-        /* Smooth scrolling */
         html {
             scroll-behavior: smooth;
         }
-        
-        /* Custom scrollbar */
+
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
         }
+
         ::-webkit-scrollbar-track {
             background: transparent;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 3px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
-        
-        /* Skeleton loading animation */
-        @keyframes skeleton-pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-        .skeleton {
-            animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        
-        /* PWA Standalone - hide browser UI elements */
+
         @media (display-mode: standalone) {
             body {
                 user-select: none;
@@ -101,7 +79,7 @@
             }
         }
 
-        /* Loading splash screen */
+        /* Loading splash */
         #app-loader {
             position: fixed;
             inset: 0;
@@ -113,10 +91,12 @@
             z-index: 9999;
             transition: opacity 0.4s ease, visibility 0.4s ease;
         }
+
         #app-loader.hidden {
             opacity: 0;
             visibility: hidden;
         }
+
         #app-loader .loader-title {
             color: white;
             font-size: 2rem;
@@ -124,38 +104,34 @@
             margin-bottom: 0.5rem;
             font-family: system-ui, sans-serif;
         }
+
         #app-loader .loader-sub {
-            color: rgba(255,255,255,0.7);
+            color: rgba(255, 255, 255, 0.7);
             font-size: 0.875rem;
             font-family: system-ui, sans-serif;
         }
+
         #app-loader .spinner {
             width: 40px;
             height: 40px;
-            border: 4px solid rgba(255,255,255,0.2);
+            border: 4px solid rgba(255, 255, 255, 0.2);
             border-top-color: white;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             margin-top: 1.5rem;
         }
+
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 
-<script type="importmap">
-{
-  "imports": {
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
+    <link rel="stylesheet" href="/index.css">
 </head>
+
 <body>
-    <!-- App Loading Splash -->
     <div id="app-loader">
         <div class="loader-title">SocialFlow AI</div>
         <div class="loader-sub">جاري تحميل التطبيق...</div>
@@ -163,28 +139,20 @@
     </div>
 
     <div id="root"></div>
-    
-<script type="module" src="/index.tsx"></script>
 
-<script>
-    // Hide loader when app is ready
-    window.addEventListener('load', () => {
-        const loader = document.getElementById('app-loader');
-        if (loader) {
-            setTimeout(() => {
-                loader.classList.add('hidden');
-                setTimeout(() => loader.remove(), 400);
-            }, 300);
-        }
-    });
-    
-    // Register service worker update notification
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-            // New content available, could show update toast
-            console.log('[SW] New content available. Refresh for updates.');
+    <script type="module" src="/index.tsx"></script>
+
+    <script>
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('app-loader');
+            if (loader) {
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    setTimeout(() => loader.remove(), 400);
+                }, 300);
+            }
         });
-    }
-</script>
+    </script>
 </body>
+
 </html>
