@@ -156,8 +156,8 @@ const DesignStudios: React.FC = () => {
             <div className="flex border-b border-gray-100 bg-gray-50">
                 <button
                     className={`flex-1 py-3 px-4 text-center font-medium text-sm ${activeTab === 'all'
-                            ? 'text-purple-700 border-b-2 border-purple-600 bg-white'
-                            : 'text-gray-500 hover:text-gray-700'
+                        ? 'text-purple-700 border-b-2 border-purple-600 bg-white'
+                        : 'text-gray-500 hover:text-gray-700'
                         }`}
                     onClick={() => setActiveTab('all')}
                 >
@@ -165,8 +165,8 @@ const DesignStudios: React.FC = () => {
                 </button>
                 <button
                     className={`flex-1 py-3 px-4 text-center font-medium text-sm ${activeTab === 'ready'
-                            ? 'text-green-700 border-b-2 border-green-600 bg-white'
-                            : 'text-gray-500 hover:text-gray-700'
+                        ? 'text-green-700 border-b-2 border-green-600 bg-white'
+                        : 'text-gray-500 hover:text-gray-700'
                         }`}
                     onClick={() => setActiveTab('ready')}
                 >
@@ -174,8 +174,8 @@ const DesignStudios: React.FC = () => {
                 </button>
                 <button
                     className={`flex-1 py-3 px-4 text-center font-medium text-sm ${activeTab === 'under_development'
-                            ? 'text-amber-700 border-b-2 border-amber-600 bg-white'
-                            : 'text-gray-500 hover:text-gray-700'
+                        ? 'text-amber-700 border-b-2 border-amber-600 bg-white'
+                        : 'text-gray-500 hover:text-gray-700'
                         }`}
                     onClick={() => setActiveTab('under_development')}
                 >
@@ -253,8 +253,8 @@ const DesignStudios: React.FC = () => {
                                             {/* Status Column */}
                                             <td className="py-4 px-4">
                                                 <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium ${studio.status === 'ready'
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : 'bg-amber-100 text-amber-800'
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : 'bg-amber-100 text-amber-800'
                                                     }`}>
                                                     {studio.status === 'ready' ? (
                                                         <>
@@ -531,7 +531,7 @@ const DesignStudios: React.FC = () => {
                                         <img src={viewingStudio.imageUrl} alt={viewingStudio.name} className="w-full h-full object-cover" />
                                     </div>
                                 ) : (
-                                    <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-purple-400 flex-shrink-0 shadow-md">
+                                    <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 flex items-start justify-center text-purple-400 flex-shrink-0 shadow-md">
                                         <Palette size={40} />
                                     </div>
                                 )}
