@@ -9,12 +9,27 @@ const DesignStudios: React.FC = () => {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [newStudio, setNewStudio] = useState({ name: '', url: '', imageUrl: '', imageSize: '', usageTips: '' });
+    const [activeTab, setActiveTab] = useState<'all' | 'ready' | 'under_development'>('all');
+    const [newStudio, setNewStudio] = useState({ 
+        name: '', 
+        url: '', 
+        imageUrl: '', 
+        imageSize: '', 
+        usageTips: '',
+        status: 'ready' as 'ready' | 'under_development'
+    });
 
     // View & Edit states
     const [viewingStudio, setViewingStudio] = useState<StudioLink | null>(null);
     const [editingStudio, setEditingStudio] = useState<StudioLink | null>(null);
-    const [editForm, setEditForm] = useState({ name: '', url: '', imageUrl: '', imageSize: '', usageTips: '' });
+    const [editForm, setEditForm] = useState({ 
+        name: '', 
+        url: '', 
+        imageUrl: '', 
+        imageSize: '', 
+        usageTips: '',
+        status: 'ready' as 'ready' | 'under_development'
+    });
 
     // Load studios from database
     useEffect(() => {
@@ -41,11 +56,12 @@ const DesignStudios: React.FC = () => {
                 url: newStudio.url,
                 imageUrl: newStudio.imageUrl || '',
                 imageSize: newStudio.imageSize || '',
-                usageTips: newStudio.usageTips || ''
+                usageTips: newStudio.usageTips || '',
+                status: newStudio.status
             });
 
             setStudios(prev => [saved, ...prev]);
-            setNewStudio({ name: '', url: '', imageUrl: '', imageSize: '', usageTips: '' });
+            setNewStudio({ name: '', url: '', imageUrl: '', imageSize: '', usageTips: '', status: 'ready' });
             setShowAddModal(false);
         } catch (error) {
             console.error('Failed to save studio:', error);
@@ -75,7 +91,8 @@ const DesignStudios: React.FC = () => {
             url: studio.url,
             imageUrl: studio.imageUrl || '',
             imageSize: studio.imageSize || '',
-            usageTips: studio.usageTips || ''
+            usageTips: studio.usageTips || '',
+            status: studio.status
         });
     };
 
@@ -91,7 +108,8 @@ const DesignStudios: React.FC = () => {
                 url: editForm.url,
                 imageUrl: editForm.imageUrl,
                 imageSize: editForm.imageSize,
-                usageTips: editForm.usageTips
+                usageTips: editForm.usageTips,
+                status: editForm.status
             };
             await api.updateStudio(updated);
             setStudios(prev => prev.map(s => s.id === updated.id ? updated : s));
@@ -134,6 +152,40 @@ const DesignStudios: React.FC = () => {
                 </button>
             </div>
 
+            {/* Tabs */}
+            <div className="flex border-b border-gray-100 bg-gray-50">
+                <button
+                    className={`flex-1 py-3 px-4 text-center font-medium text-sm ${
+                        activeTab === 'all'
+                            ? 'text-purple-700 border-b-2 border-purple-600 bg-white'
+                            : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                    onClick={() => setActiveTab('all')}
+                >
+                    الكل
+                </button>
+                <button
+                    className={`flex-1 py-3 px-4 text-center font-medium text-sm ${
+                        activeTab === 'ready'
+                            ? 'text-green-700 border-b-2 border-green-600 bg-white'
+                            : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                    onClick={() => setActiveTab('ready')}
+                >
+                    جاهز للاستخدام
+                </button>
+                <button
+                    className={`flex-1 py-3 px-4 text-center font-medium text-sm ${
+                        activeTab === 'under_development'
+                            ? 'text-amber-700 border-b-2 border-amber-600 bg-white'
+                            : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                    onClick={() => setActiveTab('under_development')}
+                >
+                    تحت التطوير
+                </button>
+            </div>
+
             {/* Table */}
             <div className="p-3 md:p-6">
                 {studios.length > 0 ? (
@@ -144,134 +196,168 @@ const DesignStudios: React.FC = () => {
                                     <th className="text-right py-4 px-4 text-sm font-bold text-gray-600 w-24">الصورة</th>
                                     <th className="text-right py-4 px-4 text-sm font-bold text-gray-600">اسم الاستديو</th>
                                     <th className="text-right py-4 px-4 text-sm font-bold text-gray-600">الرابط</th>
+                                    <th className="text-right py-4 px-4 text-sm font-bold text-gray-600 w-32">الحالة</th>
                                     <th className="text-right py-4 px-4 text-sm font-bold text-gray-600 w-32">حجم الصورة</th>
                                     <th className="text-right py-4 px-4 text-sm font-bold text-gray-600" style={{ minWidth: '250px' }}>نصائح الاستخدام</th>
                                     <th className="text-center py-4 px-4 text-sm font-bold text-gray-600 w-28">إجراءات</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {studios.map((studio) => (
-                                    <tr
-                                        key={studio.id}
-                                        className="border-b border-gray-50 hover:bg-purple-50/30 transition-colors"
-                                    >
-                                        {/* Image Column */}
-                                        <td className="py-4 px-4">
-                                            {studio.imageUrl ? (
-                                                <div
-                                                    className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 cursor-pointer hover:ring-4 hover:ring-purple-200 transition-all shadow-sm"
-                                                    onClick={() => setSelectedImage(studio.imageUrl)}
-                                                >
-                                                    <img
-                                                        src={studio.imageUrl}
-                                                        alt={studio.name}
-                                                        className="w-full h-full object-cover"
-                                                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 text-2xl">
-                                                    <Palette size={24} className="text-gray-400" />
-                                                </div>
-                                            )}
-                                        </td>
+                                {studios
+                                    .filter(studio => 
+                                        activeTab === 'all' || 
+                                        (activeTab === 'ready' && studio.status === 'ready') || 
+                                        (activeTab === 'under_development' && studio.status === 'under_development')
+                                    )
+                                    .map((studio) => (
+                                        <tr
+                                            key={studio.id}
+                                            className="border-b border-gray-50 hover:bg-purple-50/30 transition-colors"
+                                        >
+                                            {/* Image Column */}
+                                            <td className="py-4 px-4">
+                                                {studio.imageUrl ? (
+                                                    <div
+                                                        className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 cursor-pointer hover:ring-4 hover:ring-purple-200 transition-all shadow-sm"
+                                                        onClick={() => setSelectedImage(studio.imageUrl)}
+                                                    >
+                                                        <img
+                                                            src={studio.imageUrl}
+                                                            alt={studio.name}
+                                                            className="w-full h-full object-cover"
+                                                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 text-2xl">
+                                                        <Palette size={24} className="text-gray-400" />
+                                                    </div>
+                                                )}
+                                            </td>
 
-                                        {/* Name Column */}
-                                        <td className="py-4 px-4">
-                                            <span className="font-bold text-gray-800 text-lg">{studio.name}</span>
-                                        </td>
+                                            {/* Name Column */}
+                                            <td className="py-4 px-4">
+                                                <span className="font-bold text-gray-800 text-lg">{studio.name}</span>
+                                            </td>
 
-                                        {/* URL Column */}
-                                        <td className="py-4 px-4">
-                                            <a
-                                                href={studio.url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-purple-600 hover:text-purple-800 hover:underline flex items-center gap-2"
-                                            >
-                                                <span className="max-w-[300px] truncate">{studio.url}</span>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
-                                            </a>
-                                        </td>
-
-                                        {/* Image Size Column */}
-                                        <td className="py-4 px-4">
-                                            {studio.imageSize ? (
-                                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                                                        <line x1="3" y1="9" x2="21" y2="9" />
-                                                        <line x1="9" y1="21" x2="9" y2="9" />
-                                                    </svg>
-                                                    {studio.imageSize}
-                                                </span>
-                                            ) : (
-                                                <span className="text-gray-400 text-sm">—</span>
-                                            )}
-                                        </td>
-
-                                        {/* Usage Tips Column */}
-                                        <td className="py-4 px-4">
-                                            {studio.usageTips ? (
-                                                <div className="max-w-md">
-                                                    <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed line-clamp-3" title={studio.usageTips}>
-                                                        {studio.usageTips}
-                                                    </p>
-                                                    {studio.usageTips.length > 150 && (
-                                                        <button
-                                                            onClick={() => alert(studio.usageTips)}
-                                                            className="text-purple-600 text-xs mt-1 hover:underline"
-                                                        >
-                                                            عرض المزيد...
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            ) : (
-                                                <span className="text-gray-400 text-sm">لا توجد نصائح</span>
-                                            )}
-                                        </td>
-
-                                        {/* Actions Column */}
-                                        <td className="py-4 px-4 text-center">
-                                            <div className="flex items-center justify-center gap-1.5">
-                                                {/* View Button */}
-                                                <button
-                                                    onClick={() => setViewingStudio(studio)}
-                                                    className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
-                                                    title="عرض التفاصيل"
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
-                                                </button>
-                                                {/* Edit Button */}
-                                                <button
-                                                    onClick={() => handleEditClick(studio)}
-                                                    className="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors"
-                                                    title="تعديل"
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
-                                                </button>
-                                                {/* Open Link Button */}
+                                            {/* URL Column */}
+                                            <td className="py-4 px-4">
                                                 <a
                                                     href={studio.url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="p-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors"
-                                                    title="فتح الرابط"
+                                                    className="text-purple-600 hover:text-purple-800 hover:underline flex items-center gap-2"
                                                 >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
+                                                    <span className="max-w-[300px] truncate">{studio.url}</span>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
                                                 </a>
-                                                {/* Delete Button */}
-                                                <button
-                                                    onClick={() => handleDeleteStudio(studio.id)}
-                                                    className="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors"
-                                                    title="حذف"
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
+                                            </td>
+
+                                            {/* Status Column */}
+                                            <td className="py-4 px-4">
+                                                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium ${
+                                                    studio.status === 'ready' 
+                                                        ? 'bg-green-100 text-green-800' 
+                                                        : 'bg-amber-100 text-amber-800'
+                                                }`}>
+                                                    {studio.status === 'ready' ? (
+                                                        <>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                <circle cx="12" cy="12" r="10" />
+                                                                <path d="m5 12 5 5 10-10" />
+                                                            </svg>
+                                                            جاهز
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                <path d="M12 2v20" />
+                                                                <path d="M2 12h20" />
+                                                            </svg>
+                                                            تحت التطوير
+                                                        </>
+                                                    )}
+                                                </span>
+                                            </td>
+
+                                            {/* Image Size Column */}
+                                            <td className="py-4 px-4">
+                                                {studio.imageSize ? (
+                                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                                            <line x1="3" y1="9" x2="21" y2="9" />
+                                                            <line x1="9" y1="21" x2="9" y2="9" />
+                                                        </svg>
+                                                        {studio.imageSize}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-gray-400 text-sm">—</span>
+                                                )}
+                                            </td>
+
+                                            {/* Usage Tips Column */}
+                                            <td className="py-4 px-4">
+                                                {studio.usageTips ? (
+                                                    <div className="max-w-md">
+                                                        <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed line-clamp-3" title={studio.usageTips}>
+                                                            {studio.usageTips}
+                                                        </p>
+                                                        {studio.usageTips.length > 150 && (
+                                                            <button
+                                                                onClick={() => alert(studio.usageTips)}
+                                                                className="text-purple-600 text-xs mt-1 hover:underline"
+                                                            >
+                                                                عرض المزيد...
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-gray-400 text-sm">لا توجد نصائح</span>
+                                                )}
+                                            </td>
+
+                                            {/* Actions Column */}
+                                            <td className="py-4 px-4 text-center">
+                                                <div className="flex items-center justify-center gap-1.5">
+                                                    {/* View Button */}
+                                                    <button
+                                                        onClick={() => setViewingStudio(studio)}
+                                                        className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                                                        title="عرض التفاصيل"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                                                    </button>
+                                                    {/* Edit Button */}
+                                                    <button
+                                                        onClick={() => handleEditClick(studio)}
+                                                        className="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors"
+                                                        title="تعديل"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                                                    </button>
+                                                    {/* Open Link Button */}
+                                                    <a
+                                                        href={studio.url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="p-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors"
+                                                        title="فتح الرابط"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
+                                                    </a>
+                                                    {/* Delete Button */}
+                                                    <button
+                                                        onClick={() => handleDeleteStudio(studio.id)}
+                                                        className="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors"
+                                                        title="حذف"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
                             </tbody>
                         </table>
                     </div>
@@ -340,6 +426,18 @@ const DesignStudios: React.FC = () => {
                             </div>
 
                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">حالة الاستديو</label>
+                                <select
+                                    value={newStudio.status}
+                                    onChange={(e) => setNewStudio({ ...newStudio, status: e.target.value as 'ready' | 'under_development' })}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-200 focus:border-purple-500 outline-none"
+                                >
+                                    <option value="ready">جاهز للاستخدام</option>
+                                    <option value="under_development">تحت التطوير</option>
+                                </select>
+                            </div>
+
+                            <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">رابط صورة (اختياري)</label>
                                 <input
                                     type="url"
@@ -381,7 +479,7 @@ const DesignStudios: React.FC = () => {
 
                         <div className="flex gap-3 mt-6">
                             <button
-                                onClick={() => { setShowAddModal(false); setNewStudio({ name: '', url: '', imageUrl: '', imageSize: '', usageTips: '' }); }}
+                                onClick={() => { setShowAddModal(false); setNewStudio({ name: '', url: '', imageUrl: '', imageSize: '', usageTips: '', status: 'ready' }); }}
                                 className="flex-1 py-3 border border-gray-200 rounded-xl font-medium text-gray-600 hover:bg-gray-50 transition-colors"
                             >
                                 إلغاء
@@ -552,6 +650,18 @@ const DesignStudios: React.FC = () => {
                                     placeholder="https://www.example.com"
                                     dir="ltr"
                                 />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">حالة الاستديو</label>
+                                <select
+                                    value={editForm.status}
+                                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value as 'ready' | 'under_development' })}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-200 focus:border-amber-500 outline-none"
+                                >
+                                    <option value="ready">جاهز للاستخدام</option>
+                                    <option value="under_development">تحت التطوير</option>
+                                </select>
                             </div>
 
                             <div>

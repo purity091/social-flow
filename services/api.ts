@@ -452,6 +452,7 @@ export interface StudioLink {
     imageUrl: string;
     imageSize: string; // تصنيف حجم الصورة (مثل: 1080x1080، 1200x628، إلخ)
     usageTips: string; // نصائح كيفية الاستخدام
+    status: 'ready' | 'under_development'; // حالة الاستديو: جاهز للاستخدام أو تحت التطوير
 }
 
 const getLocalStudios = (): StudioLink[] => {
@@ -478,14 +479,21 @@ export const getStudios = async (): Promise<StudioLink[]> => {
         url: s.url,
         imageUrl: s.image_url || '',
         imageSize: s.image_size || '',
-        usageTips: s.usage_tips || ''
+        usageTips: s.usage_tips || '',
+        status: s.status || 'ready'
     }));
 };
 
 export const createStudio = async (studio: Omit<StudioLink, 'id'>): Promise<StudioLink> => {
     if (!isSupabaseConfigured || !supabase) {
         const studios = getLocalStudios();
-        const newStudio = { ...studio, id: `local-${Date.now()}`, imageSize: studio.imageSize || '', usageTips: studio.usageTips || '' };
+        const newStudio = { 
+            ...studio, 
+            id: `local-${Date.now()}`, 
+            imageSize: studio.imageSize || '', 
+            usageTips: studio.usageTips || '',
+            status: studio.status || 'ready'
+        };
         saveLocalStudios([newStudio, ...studios]);
         return newStudio;
     }
@@ -499,7 +507,8 @@ export const createStudio = async (studio: Omit<StudioLink, 'id'>): Promise<Stud
         url: studio.url,
         image_url: studio.imageUrl || null,
         image_size: studio.imageSize || null,
-        usage_tips: studio.usageTips || null
+        usage_tips: studio.usageTips || null,
+        status: studio.status || 'ready'
     };
 
     const { data, error } = await supabase.from('design_studios').insert([payload]).select().single();
@@ -511,7 +520,8 @@ export const createStudio = async (studio: Omit<StudioLink, 'id'>): Promise<Stud
         url: data.url,
         imageUrl: data.image_url || '',
         imageSize: data.image_size || '',
-        usageTips: data.usage_tips || ''
+        usageTips: data.usage_tips || '',
+        status: data.status || 'ready'
     };
 };
 
@@ -539,7 +549,8 @@ export const updateStudio = async (studio: StudioLink): Promise<StudioLink> => {
         url: studio.url,
         image_url: studio.imageUrl || null,
         image_size: studio.imageSize || null,
-        usage_tips: studio.usageTips || null
+        usage_tips: studio.usageTips || null,
+        status: studio.status
     };
 
     const { error } = await supabase.from('design_studios').update(payload).eq('id', studio.id);
