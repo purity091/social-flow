@@ -10,11 +10,11 @@ const DesignStudios: React.FC = () => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [saving, setSaving] = useState(false);
     const [activeTab, setActiveTab] = useState<'all' | 'ready' | 'under_development'>('all');
-    const [newStudio, setNewStudio] = useState({ 
-        name: '', 
-        url: '', 
-        imageUrl: '', 
-        imageSize: '', 
+    const [newStudio, setNewStudio] = useState({
+        name: '',
+        url: '',
+        imageUrl: '',
+        imageSize: '',
         usageTips: '',
         status: 'ready' as 'ready' | 'under_development'
     });
@@ -22,11 +22,11 @@ const DesignStudios: React.FC = () => {
     // View & Edit states
     const [viewingStudio, setViewingStudio] = useState<StudioLink | null>(null);
     const [editingStudio, setEditingStudio] = useState<StudioLink | null>(null);
-    const [editForm, setEditForm] = useState({ 
-        name: '', 
-        url: '', 
-        imageUrl: '', 
-        imageSize: '', 
+    const [editForm, setEditForm] = useState({
+        name: '',
+        url: '',
+        imageUrl: '',
+        imageSize: '',
         usageTips: '',
         status: 'ready' as 'ready' | 'under_development'
     });
@@ -155,31 +155,28 @@ const DesignStudios: React.FC = () => {
             {/* Tabs */}
             <div className="flex border-b border-gray-100 bg-gray-50">
                 <button
-                    className={`flex-1 py-3 px-4 text-center font-medium text-sm ${
-                        activeTab === 'all'
+                    className={`flex-1 py-3 px-4 text-center font-medium text-sm ${activeTab === 'all'
                             ? 'text-purple-700 border-b-2 border-purple-600 bg-white'
                             : 'text-gray-500 hover:text-gray-700'
-                    }`}
+                        }`}
                     onClick={() => setActiveTab('all')}
                 >
                     الكل
                 </button>
                 <button
-                    className={`flex-1 py-3 px-4 text-center font-medium text-sm ${
-                        activeTab === 'ready'
+                    className={`flex-1 py-3 px-4 text-center font-medium text-sm ${activeTab === 'ready'
                             ? 'text-green-700 border-b-2 border-green-600 bg-white'
                             : 'text-gray-500 hover:text-gray-700'
-                    }`}
+                        }`}
                     onClick={() => setActiveTab('ready')}
                 >
                     جاهز للاستخدام
                 </button>
                 <button
-                    className={`flex-1 py-3 px-4 text-center font-medium text-sm ${
-                        activeTab === 'under_development'
+                    className={`flex-1 py-3 px-4 text-center font-medium text-sm ${activeTab === 'under_development'
                             ? 'text-amber-700 border-b-2 border-amber-600 bg-white'
                             : 'text-gray-500 hover:text-gray-700'
-                    }`}
+                        }`}
                     onClick={() => setActiveTab('under_development')}
                 >
                     تحت التطوير
@@ -204,9 +201,9 @@ const DesignStudios: React.FC = () => {
                             </thead>
                             <tbody>
                                 {studios
-                                    .filter(studio => 
-                                        activeTab === 'all' || 
-                                        (activeTab === 'ready' && studio.status === 'ready') || 
+                                    .filter(studio =>
+                                        activeTab === 'all' ||
+                                        (activeTab === 'ready' && studio.status === 'ready') ||
                                         (activeTab === 'under_development' && studio.status === 'under_development')
                                     )
                                     .map((studio) => (
@@ -255,11 +252,10 @@ const DesignStudios: React.FC = () => {
 
                                             {/* Status Column */}
                                             <td className="py-4 px-4">
-                                                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium ${
-                                                    studio.status === 'ready' 
-                                                        ? 'bg-green-100 text-green-800' 
+                                                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium ${studio.status === 'ready'
+                                                        ? 'bg-green-100 text-green-800'
                                                         : 'bg-amber-100 text-amber-800'
-                                                }`}>
+                                                    }`}>
                                                     {studio.status === 'ready' ? (
                                                         <>
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -617,7 +613,7 @@ const DesignStudios: React.FC = () => {
 
             {/* Edit Studio Modal */}
             {editingStudio && (
-                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 top-0">
+                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center pt-10 top-0">
                     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
                         {/* Modal Header */}
                         <div className="p-6 border-b border-gray-100 bg-gradient-to-l from-amber-50 to-orange-50">
