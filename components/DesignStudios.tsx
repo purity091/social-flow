@@ -373,7 +373,7 @@ const DesignStudios: React.FC = () => {
             {/* Image Lightbox */}
             {selectedImage && (
                 <div
-                    className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+                    className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 top-0"
                     onClick={() => setSelectedImage(null)}
                 >
                     <div className="relative max-w-4xl max-h-[90vh]">
@@ -395,7 +395,7 @@ const DesignStudios: React.FC = () => {
 
             {/* Add Link Modal */}
             {showAddModal && (
-                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 top-0">
                     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
                         <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                             <Link size={24} /> <span>إضافة رابط جديد</span>
@@ -505,7 +505,7 @@ const DesignStudios: React.FC = () => {
 
             {/* View Studio Modal */}
             {viewingStudio && (
-                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 top-0">
                     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
                         {/* Modal Header */}
                         <div className="p-6 border-b border-gray-100 bg-gradient-to-l from-blue-50 to-purple-50">
@@ -617,7 +617,7 @@ const DesignStudios: React.FC = () => {
 
             {/* Edit Studio Modal */}
             {editingStudio && (
-                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 top-0">
                     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
                         {/* Modal Header */}
                         <div className="p-6 border-b border-gray-100 bg-gradient-to-l from-amber-50 to-orange-50">
