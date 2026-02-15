@@ -24,9 +24,40 @@ import {
   Copy
 } from 'lucide-react';
 
+// Valid tab IDs for hash routing
+const VALID_TABS = ['calendar', 'posts', 'gantt', 'media', 'studios', 'investor'];
+
+function getTabFromHash(): string {
+  const hash = window.location.hash.replace(/^#\/?/, '');
+  return VALID_TABS.includes(hash) ? hash : 'calendar';
+}
+
 const App: React.FC = () => {
   const { user, loading: authLoading, signOut, isConfigured } = useAuth();
-  const [activeTab, setActiveTab] = useState('calendar');
+  const [activeTab, setActiveTabState] = useState(getTabFromHash);
+
+  // Sync URL hash → state (browser back/forward)
+  useEffect(() => {
+    const onHashChange = () => {
+      setActiveTabState(getTabFromHash());
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  // Wrapper: update state AND hash together
+  const setActiveTab = (tab: string) => {
+    setActiveTabState(tab);
+    window.location.hash = `/${tab}`;
+  };
+
+  // On first mount, ensure the hash is set if it was missing
+  useEffect(() => {
+    if (!window.location.hash || window.location.hash === '#' || window.location.hash === '#/') {
+      window.location.hash = `/${activeTab}`;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [showBulkGen, setShowBulkGen] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
