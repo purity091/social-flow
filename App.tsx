@@ -563,7 +563,12 @@ const App: React.FC = () => {
         post={editingPost}
         initialDate={initialDate}
         mediaItems={mediaItems}
+        mediaFolders={mediaFolders}
         onUploadMedia={handleUploadMedia}
+        onCreateFolder={handleCreateFolder}
+        onDeleteFolder={handleDeleteFolder}
+        onRenameFolder={handleRenameFolder}
+        onMoveItem={handleMoveItem}
       />
 
       {/* JSON Import Modal */}

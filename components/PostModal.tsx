@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Post, Platform, MediaItem } from '../types';
+import { Post, Platform, MediaItem, MediaFolder } from '../types';
 import { getPlatformConfig } from '../constants';
 import MediaLibrary from './MediaLibrary';
 import { Camera } from 'lucide-react';
@@ -12,10 +12,28 @@ interface PostModalProps {
   post?: Post | null;
   initialDate?: Date;
   mediaItems: MediaItem[];
-  onUploadMedia: (files: FileList) => void;
+  mediaFolders: MediaFolder[];
+  onUploadMedia: (files: File[], folderId?: string | null, onProgress?: (fileId: string, progress: number) => void) => Promise<void>;
+  onCreateFolder: (name: string, parentId?: string | null) => void;
+  onDeleteFolder: (id: string) => void;
+  onRenameFolder: (folder: MediaFolder) => void;
+  onMoveItem: (item: MediaItem, folderId: string | null) => void;
 }
 
-const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, onSave, post, initialDate, mediaItems, onUploadMedia }) => {
+const PostModal: React.FC<PostModalProps> = ({
+  isOpen,
+  onClose,
+  onSave,
+  post,
+  initialDate,
+  mediaItems,
+  mediaFolders,
+  onUploadMedia,
+  onCreateFolder,
+  onDeleteFolder,
+  onRenameFolder,
+  onMoveItem
+}) => {
   const [formData, setFormData] = useState<Partial<Post>>({
     title: '',
     content: '',
@@ -69,10 +87,15 @@ const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, onSave, post, in
           </div>
           <MediaLibrary
             mediaItems={mediaItems}
+            mediaFolders={mediaFolders}
             onUpload={onUploadMedia}
             onDelete={() => { }} // Read-only in selection mode basically, or handle delete if needed
             isSelectMode={true}
             onSelect={handleSelectMedia}
+            onCreateFolder={onCreateFolder}
+            onDeleteFolder={onDeleteFolder}
+            onRenameFolder={onRenameFolder}
+            onMoveItem={onMoveItem}
           />
         </div>
       ) : (
