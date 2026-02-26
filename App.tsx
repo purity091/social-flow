@@ -45,9 +45,8 @@ const App: React.FC = () => {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-  // Wrapper: update state AND hash together
+  // Wrapper: only update hash — the hashchange listener will sync state
   const setActiveTab = (tab: string) => {
-    setActiveTabState(tab);
     window.location.hash = `/${tab}`;
   };
 
@@ -415,7 +414,7 @@ const App: React.FC = () => {
   };
 
 
-  const renderContent = () => {
+  const renderAllTabs = () => {
     if (isLoading) {
       return (
         <div className="flex h-64 items-center justify-center">
@@ -427,9 +426,9 @@ const App: React.FC = () => {
       );
     }
 
-    switch (activeTab) {
-      case 'calendar':
-        return (
+    return (
+      <>
+        <div style={{ display: activeTab === 'calendar' ? 'block' : 'none' }}>
           <div className="space-y-6">
             {showBulkGen && <BulkGenerator onPostsGenerated={handleBulkPosts} />}
             <CalendarView
@@ -438,18 +437,20 @@ const App: React.FC = () => {
               onEditPost={openEditPostModal}
             />
           </div>
-        );
-      case 'gantt':
-        return <GanttChart campaigns={campaigns} />;
-      case 'posts':
-        return (
+        </div>
+
+        <div style={{ display: activeTab === 'gantt' ? 'block' : 'none' }}>
+          <GanttChart campaigns={campaigns} />
+        </div>
+
+        <div style={{ display: activeTab === 'posts' ? 'block' : 'none' }}>
           <div className="space-y-6">
             {showBulkGen && <BulkGenerator onPostsGenerated={handleBulkPosts} />}
             <PostsListView posts={posts} onDeletePost={deletePost} onEditPost={openEditPostModal} />
           </div>
-        );
-      case 'media':
-        return (
+        </div>
+
+        <div style={{ display: activeTab === 'media' ? 'block' : 'none' }}>
           <MediaLibrary
             mediaItems={mediaItems}
             mediaFolders={mediaFolders}
@@ -460,14 +461,17 @@ const App: React.FC = () => {
             onRenameFolder={handleRenameFolder}
             onMoveItem={handleMoveItem}
           />
-        );
-      case 'studios':
-        return <DesignStudios />;
-      case 'investor':
-        return <InvestorPlatform />;
-      default:
-        return <CalendarView posts={posts} onAddPost={openNewPostModal} onEditPost={openEditPostModal} />;
-    }
+        </div>
+
+        <div style={{ display: activeTab === 'studios' ? 'block' : 'none' }}>
+          <DesignStudios />
+        </div>
+
+        <div style={{ display: activeTab === 'investor' ? 'block' : 'none' }}>
+          <InvestorPlatform />
+        </div>
+      </>
+    );
   };
 
   return (
@@ -552,7 +556,7 @@ const App: React.FC = () => {
         </header>
 
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-          {renderContent()}
+          {renderAllTabs()}
         </div>
       </main>
 
