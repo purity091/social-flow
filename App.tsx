@@ -5,6 +5,7 @@ import GanttChart from './components/GanttChart';
 import BulkGenerator from './components/BulkGenerator';
 import PostsListView from './components/PostsListView';
 import PostModal from './components/PostModal';
+import BulkControlTab from './components/BulkControlTab';
 import MediaLibrary from './components/MediaLibrary';
 import DesignStudios from './components/DesignStudios';
 import InvestorPlatform from './components/InvestorPlatform';
@@ -25,7 +26,7 @@ import {
 } from 'lucide-react';
 
 // Valid tab IDs for hash routing
-const VALID_TABS = ['calendar', 'posts', 'gantt', 'media', 'studios', 'investor'];
+const VALID_TABS = ['calendar', 'posts', 'gantt', 'media', 'studios', 'investor', 'bulk-control'];
 
 function getTabFromHash(): string {
   const hash = window.location.hash.replace(/^#\/?/, '');
@@ -450,6 +451,10 @@ const App: React.FC = () => {
           </div>
         </div>
 
+        <div style={{ display: activeTab === 'bulk-control' ? 'block' : 'none' }}>
+          <BulkControlTab posts={posts} setPosts={setPosts} />
+        </div>
+
         <div style={{ display: activeTab === 'media' ? 'block' : 'none' }}>
           <MediaLibrary
             mediaItems={mediaItems}
@@ -485,6 +490,7 @@ const App: React.FC = () => {
                 {activeTab === 'calendar' && 'التقويم الذكي'}
                 {activeTab === 'gantt' && 'تخطيط المحتوى'}
                 {activeTab === 'posts' && 'أرشيف المحتوى'}
+                {activeTab === 'bulk-control' && 'تحكم جماعي'}
                 {activeTab === 'media' && 'مكتبة الوسائط'}
                 {activeTab === 'studios' && 'استديوهات التصميم'}
                 {activeTab === 'investor' && 'منصة المستثمر'}

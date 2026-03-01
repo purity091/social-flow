@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Calendar, FileText, BarChart2, Image, Palette, TrendingUp } from 'lucide-react';
+import { Calendar, FileText, BarChart2, Image, Palette, TrendingUp, ListChecks } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
@@ -11,6 +11,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const menuItems = [
     { id: 'calendar', label: 'التقويم', labelFull: 'التقويم الشهري', icon: <Calendar size={20} /> },
     { id: 'posts', label: 'المنشورات', labelFull: 'المنشورات', icon: <FileText size={20} /> },
+    { id: 'bulk-control', label: 'التحكم', labelFull: 'تحكم جماعي', icon: <ListChecks size={20} /> },
     { id: 'gantt', label: 'غانت', labelFull: 'مخطط غانت', icon: <BarChart2 size={20} /> },
     { id: 'media', label: 'الوسائط', labelFull: 'مكتبة الوسائط', icon: <Image size={20} /> },
     { id: 'studios', label: 'التصميم', labelFull: 'استديوهات التصميم', icon: <Palette size={20} /> },
@@ -64,8 +65,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
               key={item.id}
               onClick={() => setActiveTab(item.id)}
               className={`flex flex-col items-center justify-center py-2 px-1 flex-1 transition-all active:scale-95 relative ${activeTab === item.id
-                  ? 'text-indigo-600'
-                  : 'text-gray-400'
+                ? 'text-indigo-600'
+                : 'text-gray-400'
                 }`}
             >
               {activeTab === item.id && (
