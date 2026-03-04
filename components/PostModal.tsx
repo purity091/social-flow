@@ -196,7 +196,7 @@ const PostModal: React.FC<PostModalProps> = ({
                   <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center relative group border-2 border-dashed border-gray-300">
                     {formData.imageUrl ? (
                       <div className="relative w-full h-full">
-                        <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                        <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" crossOrigin="anonymous" />
                         <button
                           type="button"
                           onClick={() => setFormData({ ...formData, imageUrl: '' })}

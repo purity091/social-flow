@@ -528,7 +528,7 @@ const DesignStudios: React.FC = () => {
                                         className="w-24 h-24 rounded-xl overflow-hidden bg-gray-100 shadow-md cursor-pointer hover:ring-4 hover:ring-purple-200 transition-all flex-shrink-0"
                                         onClick={() => setSelectedImage(viewingStudio.imageUrl)}
                                     >
-                                        <img src={viewingStudio.imageUrl} alt={viewingStudio.name} className="w-full h-full object-cover" />
+                                        <img src={viewingStudio.imageUrl} alt={viewingStudio.name} className="w-full h-full object-cover" crossOrigin="anonymous" />
                                     </div>
                                 ) : (
                                     <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 flex items-start justify-center text-purple-400 flex-shrink-0 shadow-md">

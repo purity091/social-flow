@@ -492,7 +492,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                                                 className={`group relative aspect-square bg-white rounded-xl overflow-hidden border transition-all cursor-pointer ${isSelectMode ? 'hover:ring-4 hover:ring-indigo-400 hover:scale-95' : 'hover:shadow-lg'}`}
                                                 onClick={() => isSelectMode && onSelect?.(item)}
                                             >
-                                                <img src={item.url} alt={item.name} className="w-full h-full object-cover" />
+                                                <img src={item.url} alt={item.name} className="w-full h-full object-cover" crossOrigin="anonymous" />
                                                 <div className="absolute top-2 right-2 bg-black/70 text-white text-[10px] px-2 py-1 rounded-lg flex flex-col items-end">
                                                     {item.width && item.height && <span className="font-bold">{item.width}×{item.height}</span>}
                                                     <span className="opacity-80">{formatFileSize(item.size)}</span>
@@ -530,7 +530,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                                                 className={`group flex items-center gap-4 p-3 cursor-pointer hover:bg-gray-50 transition-all ${index !== currentItems.length - 1 ? 'border-b border-gray-100' : ''}`}
                                                 onClick={() => isSelectMode && onSelect?.(item)}
                                             >
-                                                <img src={item.url} alt={item.name} className="w-16 h-16 object-cover rounded-lg flex-shrink-0" />
+                                                <img src={item.url} alt={item.name} className="w-16 h-16 object-cover rounded-lg flex-shrink-0" crossOrigin="anonymous" />
                                                 <div className="flex-1 min-w-0">
                                                     <p className="font-medium text-gray-800 truncate" title={item.name}>{item.name}</p>
                                                     <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
