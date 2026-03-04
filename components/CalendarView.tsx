@@ -129,20 +129,20 @@ const CalendarView: React.FC<CalendarViewProps> = ({ posts, onAddPost, onEditPos
             <div
               key={day}
               className={`transition-all ${isToday
-                  ? 'bg-indigo-50/60'
-                  : isPast && !hasContent
-                    ? 'bg-gray-50/40'
-                    : 'bg-white'
+                ? 'bg-indigo-50/60'
+                : isPast && !hasContent
+                  ? 'bg-gray-50/40'
+                  : 'bg-white'
                 }`}
             >
               {/* Day Header Row */}
               <div className="flex items-center gap-3 px-4 py-3">
                 {/* Day Number Circle */}
                 <div className={`w-11 h-11 rounded-2xl flex flex-col items-center justify-center shrink-0 transition-all ${isToday
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
-                    : isWeekend
-                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                      : 'bg-gray-100 text-gray-700 border border-gray-200'
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
+                  : isWeekend
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    : 'bg-gray-100 text-gray-700 border border-gray-200'
                   }`}>
                   <span className="text-base font-bold leading-none">{day}</span>
                   <span className={`text-[8px] font-semibold leading-none mt-0.5 ${isToday ? 'text-indigo-200' : isWeekend ? 'text-emerald-500' : 'text-gray-400'
@@ -176,8 +176,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({ posts, onAddPost, onEditPos
                 <button
                   onClick={() => onAddPost(date)}
                   className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-90 ${isToday
-                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
-                      : 'bg-gray-100 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600'
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
+                    : 'bg-gray-100 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600'
                     }`}
                 >
                   <Plus size={16} strokeWidth={2.5} />
@@ -194,8 +194,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({ posts, onAddPost, onEditPos
                         key={post.id}
                         onClick={() => onEditPost(post)}
                         className={`rounded-xl overflow-hidden active:scale-[0.98] transition-all cursor-pointer border ${post.status === 'Draft'
-                            ? 'border-dashed border-gray-300 bg-gray-50'
-                            : 'border-gray-100 bg-white shadow-sm'
+                          ? 'border-dashed border-gray-300 bg-gray-50'
+                          : 'border-gray-100 bg-white shadow-sm'
                           }`}
                       >
                         <div className="flex items-stretch">
@@ -213,10 +213,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({ posts, onAddPost, onEditPos
                               </div>
                               <div className="flex items-center gap-1.5">
                                 <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold ${post.status === 'Published'
-                                    ? 'bg-emerald-100 text-emerald-700'
-                                    : post.status === 'Scheduled'
-                                      ? 'bg-amber-100 text-amber-700'
-                                      : 'bg-gray-100 text-gray-500'
+                                  ? 'bg-emerald-100 text-emerald-700'
+                                  : post.status === 'Scheduled'
+                                    ? 'bg-amber-100 text-amber-700'
+                                    : 'bg-gray-100 text-gray-500'
                                   }`}>
                                   {post.status === 'Published' ? 'منشور' : post.status === 'Scheduled' ? 'مجدول' : 'مسودة'}
                                 </span>
@@ -253,15 +253,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({ posts, onAddPost, onEditPos
                             </div>
                           </div>
 
-                          {/* Image Thumbnail if exists */}
+                          {/* Image filename badge — no image loading */}
                           {post.imageUrl && (
-                            <div className="w-16 shrink-0 bg-gray-100 overflow-hidden">
-                              <img
-                                src={post.imageUrl}
-                                alt=""
-                                className="w-full h-full object-cover"
-                                loading="lazy"
-                              />
+                            <div className="shrink-0 flex items-center self-center px-3">
+                              <span className="text-[10px] text-gray-400 bg-gray-100 rounded-lg px-2 py-1 flex items-center gap-1 max-w-[80px] truncate" title={post.imageUrl}>
+                                📎 {post.imageUrl}
+                              </span>
                             </div>
                           )}
                         </div>

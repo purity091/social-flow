@@ -10,8 +10,7 @@ import MediaLibrary from './components/MediaLibrary';
 import DesignStudios from './components/DesignStudios';
 import InvestorPlatform from './components/InvestorPlatform';
 import LoginPage from './components/LoginPage';
-import { PWAInstallBanner, OfflineIndicator, PWAUpdateToast } from './components/PWAComponents';
-import { cleanImageCache } from './hooks/usePWA';
+import { OfflineIndicator } from './components/PWAComponents';
 import { Post, Campaign, Platform, MediaItem, MediaFolder } from './types';
 import * as api from './services/api';
 import { useAuth } from './contexts/AuthContext';
@@ -76,10 +75,7 @@ const App: React.FC = () => {
   const [importJsonText, setImportJsonText] = useState('');
   const [importing, setImporting] = useState(false);
 
-  // Clean expired image cache on startup
-  useEffect(() => {
-    cleanImageCache();
-  }, []);
+
 
   // Load data from Supabase on mount (or when user changes)
   useEffect(() => {
@@ -680,10 +676,8 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* PWA Components */}
-      <PWAInstallBanner />
+      {/* Online/Offline Indicator */}
       <OfflineIndicator />
-      <PWAUpdateToast />
     </div>
   );
 };
