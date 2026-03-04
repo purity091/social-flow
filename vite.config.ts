@@ -102,17 +102,21 @@ export default defineConfig(({ mode }) => {
                 cacheableResponse: { statuses: [0, 200] },
               },
             },
-            // Supabase storage images
+            // Supabase storage images - NetworkFirst to avoid CORS/opaque response errors
             {
               urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/.*/i,
-              handler: 'CacheFirst',
+              handler: 'NetworkFirst',
               options: {
                 cacheName: 'supabase-images',
+                networkTimeoutSeconds: 10,
                 expiration: {
                   maxEntries: 200,
                   maxAgeSeconds: 60 * 60 * 24 * 30,
                 },
                 cacheableResponse: { statuses: [0, 200] },
+                fetchOptions: {
+                  mode: 'cors',
+                },
               },
             },
             // General images
